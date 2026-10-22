@@ -61,6 +61,7 @@
         <!-- Top Metrics Row -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="bg-space-900 border border-space-800 p-5 rounded-2xl shadow-lg relative overflow-hidden">
+                <div class="absolute top-4 right-4 text-cyan-500/20 text-2xl">⚙️</div>
                 <p class="text-[11px] text-gray-400 uppercase tracking-wider font-semibold">Pipeline Engine</p>
                 <div class="flex items-baseline space-x-2 mt-1">
                     <span class="text-xl font-bold text-cyan-400">AWS Lambda</span>
@@ -70,15 +71,17 @@
             </div>
 
             <div class="bg-space-900 border border-space-800 p-5 rounded-2xl shadow-lg relative overflow-hidden">
+                <div class="absolute top-4 right-4 text-amber-500/20 text-2xl">⏰</div>
                 <p class="text-[11px] text-gray-400 uppercase tracking-wider font-semibold">EventBridge Schedule</p>
                 <div class="flex items-baseline space-x-2 mt-1">
                     <span class="text-xl font-bold text-amber-400">rate(1 day)</span>
                     <span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded font-medium">Scheduled</span>
                 </div>
-                <p class="text-xs text-gray-500 mt-2 font-mono">Next execution: 22h 56m remaining</p>
+                <p class="text-xs text-gray-500 mt-2 font-mono">Next execution: 22h 56m left</p>
             </div>
 
             <div class="bg-space-900 border border-space-800 p-5 rounded-2xl shadow-lg relative overflow-hidden">
+                <div class="absolute top-4 right-4 text-blue-500/20 text-2xl">☀️</div>
                 <p class="text-[11px] text-gray-400 uppercase tracking-wider font-semibold">CME Events (7D)</p>
                 <div class="flex items-baseline space-x-2 mt-1">
                     <span class="text-2xl font-bold text-white">6</span>
@@ -88,6 +91,7 @@
             </div>
 
             <div class="bg-space-900 border border-space-800 p-5 rounded-2xl shadow-lg relative overflow-hidden">
+                <div class="absolute top-4 right-4 text-purple-500/20 text-2xl">⚡</div>
                 <p class="text-[11px] text-gray-400 uppercase tracking-wider font-semibold">Geomagnetic Storms</p>
                 <div class="flex items-baseline space-x-2 mt-1">
                     <span class="text-2xl font-bold text-white">4</span>
@@ -112,8 +116,9 @@
                     
                     <div class="space-y-2 text-xs text-gray-300 bg-space-950 p-3.5 rounded-xl border border-space-800 font-mono mb-4">
                         <div class="flex justify-between"><span class="text-gray-500">Target Handler:</span> <span class="text-cyan-400">app.lambda_handler</span></div>
-                        <div class="flex justify-between"><span class="text-gray-500">Runtime:</span> <span class="text-gray-300">Python 3.9 (Docker)</span></div>
-                        <div class="flex justify-between"><span class="text-gray-500">Region:</span> <span class="text-amber-400">us-east-1</span></div>
+                        <div class="flex justify-between"><span class="text-gray-500">Runtime Environment:</span> <span class="text-gray-300">Python 3.9 (Docker)</span></div>
+                        <div class="flex justify-between"><span class="text-gray-500">Region Deployment:</span> <span class="text-amber-400">us-east-1</span></div>
+                        <div class="flex justify-between"><span class="text-gray-500">API Authentication:</span> <span class="text-emerald-400">Configured (Masked)</span></div>
                         <div class="flex justify-between pt-1 border-t border-space-800"><span class="text-gray-500">Last Run:</span> <span class="text-gray-300" id="lastRunTime">10:29:07 pm</span></div>
                     </div>
                 </div>
@@ -121,6 +126,7 @@
                 <button onclick="triggerLambdaSimulation()" class="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-medium py-3 px-4 rounded-xl shadow-lg shadow-cyan-900/30 transition text-sm flex items-center justify-center space-x-2">
                     <span>⚡</span> <span>INVOKE LAMBDA FUNCTION</span>
                 </button>
+                <p class="text-[10px] text-center text-gray-500 mt-2 font-mono">Triggers simulated CloudWatch telemetry & NASA ingestion</p>
             </div>
 
             <div class="lg:col-span-2 bg-space-900 border border-space-800 p-5 rounded-2xl shadow-lg flex flex-col">
@@ -129,55 +135,87 @@
                         <span class="text-cyan-400 font-mono text-sm">>_</span>
                         <h2 class="font-bold text-sm tracking-wide text-gray-200">Execution Logs & NASA API Stream</h2>
                     </div>
-                    <button onclick="clearLogs()" class="text-xs text-gray-400 hover:text-white bg-space-800 px-3 py-1 rounded-lg border border-space-700 transition">Clear</button>
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2 h-2 bg-emerald-400 rounded-full animate-ping"></span>
+                        <button onclick="clearLogs()" class="text-xs text-gray-400 hover:text-white bg-space-800 px-3 py-1 rounded-lg border border-space-700 transition">Clear</button>
+                    </div>
                 </div>
                 <div id="logConsole" class="bg-space-950 border border-space-800 rounded-xl p-4 font-mono text-xs text-cyan-400 h-64 overflow-y-auto space-y-2 flex flex-col shadow-inner">
                     <div class="text-gray-500">{"sns_notifications_sent": 4, "execution_target": "space-weather-repo:app.lambda_handler"}</div>
                     <div class="text-emerald-400">[6:06:39 pm] REPORT RequestId: req-vt105rhn-1f84 Duration: 3065.80 ms Billed Duration: 200 ms</div>
-                    <div class="text-gray-400">[10:28:42 pm] Successfully synchronized 6 CME events and 4 GST events. Source: NASA DONKI</div>
+                    <div class="text-gray-400">Memory Size: 3008 MB Max Memory Used: 98 MB</div>
+                    <div class="text-cyan-400">[6:06:39 pm] END RequestId: req-vt105rhn-1f84</div>
+                    <div class="text-gray-400">[10:28:41 pm] Initiating data fetch from NASA DONKI API endpoints...</div>
+                    <div class="text-emerald-400">[10:28:42 pm] Successfully synchronized 6 CME events and 4 GST events. Source: NASA DONKI Mission Cache</div>
                 </div>
             </div>
         </div>
 
-        <!-- Feeds Grid with Inspect Modals -->
+        <!-- Filter Bar -->
+        <div class="bg-space-900 border border-space-800 p-3 rounded-2xl shadow flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="relative w-full sm:w-96">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">🔍</span>
+                <input type="text" placeholder="Search event ID, region, notes..." class="w-full bg-space-950 border border-space-800 rounded-xl pl-9 pr-4 py-2 text-xs text-gray-200 focus:outline-none focus:border-cyan-500 transition">
+            </div>
+            <div class="flex items-center space-x-2 text-xs text-gray-400 w-full sm:w-auto justify-end">
+                <span>Window:</span>
+                <div class="bg-space-950 p-1 rounded-xl border border-space-800 flex space-x-1">
+                    <button class="bg-cyan-500/20 text-cyan-300 px-3 py-1 rounded-lg font-medium border border-cyan-500/30">7d</button>
+                    <button class="hover:text-gray-200 px-3 py-1 rounded-lg font-medium transition">30d</button>
+                    <button class="hover:text-gray-200 px-3 py-1 rounded-lg font-medium transition">90d</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feeds Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Coronal Mass Ejection Feed -->
             <div class="bg-space-900 border border-space-800 p-5 rounded-2xl shadow-lg">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="font-bold text-sm text-gray-200">Coronal Mass Ejection (CME) Feed</h2>
+                    <div>
+                        <h2 class="font-bold text-sm text-gray-200">Coronal Mass Ejection (CME) Feed</h2>
+                        <p class="text-xs text-gray-400">Recent solar plasma eruptions</p>
+                    </div>
                     <span class="text-xs bg-cyan-500/10 text-cyan-400 px-2.5 py-1 rounded-xl border border-cyan-500/20 font-medium">6 Events</span>
                 </div>
                 <div class="space-y-3">
                     <div class="bg-space-950 p-4 rounded-xl border border-space-800 text-xs shadow-inner">
                         <div class="flex justify-between font-mono text-gray-400 mb-2">
-                            <span class="text-cyan-400 font-bold">CME-001</span>
+                            <span class="text-cyan-400 font-bold">CME ID: 2026-10-21T18:36:00-CME-001</span>
                             <span>2026-10-21 18:36Z</span>
                         </div>
-                        <p class="text-gray-300 leading-relaxed mb-3">Partial halo Coronal Mass Ejection detected by SOHO/LASCO C2 and C3.</p>
+                        <p class="text-gray-300 leading-relaxed mb-3">Partial halo Coronal Mass Ejection detected by SOHO/LASCO C2 and C3. Associated with M4.2 solar...</p>
                         <div class="flex justify-between items-center pt-2 border-t border-space-800 text-[11px]">
-                            <span class="text-gray-400 font-mono">Speed: <span class="text-cyan-300">842 km/s</span></span>
-                            <button onclick="openModal('cme')" class="text-cyan-400 hover:underline font-medium">Inspect ↗</button>
+                            <span class="text-gray-400 font-mono">Instruments: <span class="text-gray-200">SOHO: LASCO/C2, SOH...</span></span>
+                            <div class="flex space-x-2">
+                                <span class="bg-cyan-500/10 text-cyan-300 px-2 py-0.5 rounded font-mono border border-cyan-500/20">842 km/s</span>
+                                <button onclick="openModal('cme')" class="text-cyan-400 hover:underline font-medium">Inspect ↗</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <!-- Geomagnetic Storm Feed -->
             <div class="bg-space-900 border border-space-800 p-5 rounded-2xl shadow-lg lg:col-span-2">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="font-bold text-sm text-gray-200">Geomagnetic Storm (GST) Feed</h2>
+                    <div>
+                        <h2 class="font-bold text-sm text-gray-200">Geomagnetic Storm (GST) Feed</h2>
+                        <p class="text-xs text-gray-400">Planetary magnetic disturbances</p>
+                    </div>
                     <span class="text-xs bg-amber-500/10 text-amber-400 px-2.5 py-1 rounded-xl border border-amber-500/20 font-medium">4 Events</span>
                 </div>
                 <div class="space-y-3">
-                    <div class="bg-space-950 p-4 rounded-xl border border-space-800 text-xs flex justify-between items-center shadow-inner">
-                        <div>
-                            <div class="font-mono text-amber-400 font-bold mb-1">GST-001 <span class="text-gray-500 font-normal ml-2">2026-10-19 18:00Z</span></div>
-                            <p class="text-gray-300">NOAA Classification: <span class="text-amber-300 font-semibold">G2 (Moderate)</span></p>
+                    <div class="bg-space-950 p-4 rounded-xl border border-space-800 text-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-inner">
+                        <div class="space-y-1">
+                            <div class="font-mono text-amber-400 font-bold">GST ID: 2026-10-19-GST-001 <span class="text-gray-500 font-normal ml-2">2026-10-19 18:00Z</span></div>
+                            <p class="text-gray-300">NOAA Storm Classification: <span class="text-amber-300 font-semibold">G2 (Moderate)</span></p>
+                            <p class="text-gray-400 font-mono text-[11px]">Source: Canberra Observatory</p>
                         </div>
-                        <div class="flex items-center space-x-4">
-                            <div class="text-right bg-space-900 p-3 rounded-xl border border-space-800">
-                                <span class="text-[10px] text-gray-400 uppercase">Peak Kp</span>
-                                <span class="text-xl font-bold text-amber-400 block">6.0</span>
-                            </div>
-                            <button onclick="openModal('gst')" class="text-cyan-400 hover:underline font-medium">Inspect ↗</button>
+                        <div class="text-right bg-space-900 p-3 rounded-xl border border-space-800 min-w-[120px] flex sm:flex-col justify-between items-center sm:items-end w-full sm:w-auto">
+                            <span class="text-[10px] text-gray-400 uppercase tracking-wider">Peak Kp</span>
+                            <span class="text-xl font-bold text-amber-400">6.0</span>
+                            <button onclick="openModal('gst')" class="text-cyan-400 hover:underline text-xs font-medium sm:mt-1">Inspect ↗</button>
                         </div>
                     </div>
                 </div>
@@ -211,51 +249,97 @@ def lambda_handler(event, context):
     </div>
 
     <!-- TAB 3: NOAA KP GUIDE -->
-    <div id="viewGuide" class="hidden space-y-4 max-w-7xl mx-auto w-full">
+    <div id="viewGuide" class="hidden space-y-6 max-w-7xl mx-auto w-full">
         <div class="bg-space-900 border border-space-800 p-6 rounded-2xl shadow-lg">
-            <h2 class="text-lg font-bold text-amber-400 mb-2">📡 NOAA Geomagnetic Storm Severity (Kp Index) Scale</h2>
-            <p class="text-xs text-gray-400 mb-4">Planetary magnetic disturbances classification index.</p>
+            <h2 class="text-lg font-bold text-amber-400 mb-2">📡 Space Weather Fundamentals: CME, Flares & Geomagnetic Storms</h2>
+            <p class="text-xs text-gray-400 mb-4 leading-relaxed">
+                Space weather phenomena originate from solar activity and propagate through the interplanetary medium. When Earth-directed plasma interacts with Earth's magnetosphere, it induces geomagnetic storms (GST) measured by the Kp index.
+            </p>
+            
+            <h3 class="text-sm font-bold text-gray-200 mt-6 mb-3">NOAA Geomagnetic Storm Severity (Kp Index) Scale</h3>
             <div class="space-y-3 text-xs">
-                <div class="bg-space-950 p-3 rounded-xl border border-space-800 flex justify-between">
-                    <span class="text-gray-300 font-semibold">G1 (Minor) - Kp 5</span>
-                    <span class="text-gray-400">Weak power grid fluctuations, high-latitude aurora.</span>
+                <div class="bg-space-950 p-4 rounded-xl border border-space-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <div>
+                        <span class="text-gray-300 font-bold font-mono">G1 (Minor) - Kp 5</span>
+                        <p class="text-gray-400 mt-1">Weak power grid fluctuations, minor impact on satellite operations, high-latitude aurora visible.</p>
+                    </div>
+                    <span class="bg-gray-800 text-gray-300 px-3 py-1 rounded-lg font-mono">AURORA: Alaska, Canada</span>
                 </div>
-                <div class="bg-space-950 p-3 rounded-xl border border-space-800 flex justify-between">
-                    <span class="text-amber-400 font-semibold">G2-G3 (Moderate-Strong) - Kp 6-7</span>
-                    <span class="text-gray-400">Voltage alarms, satellite orientation changes required.</span>
+                <div class="bg-space-950 p-4 rounded-xl border border-space-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <div>
+                        <span class="text-amber-400 font-bold font-mono">G2 - G3 (Moderate - Strong) - Kp 6-7</span>
+                        <p class="text-gray-400 mt-1">Voltage alarms at high-latitude power systems; satellite orientation changes may be required for drag.</p>
+                    </div>
+                    <span class="bg-amber-500/10 text-amber-300 px-3 py-1 rounded-lg font-mono border border-amber-500/30">AURORA: Northern US, Europe</span>
                 </div>
-                <div class="bg-space-950 p-3 rounded-xl border border-space-800 flex justify-between">
-                    <span class="text-rose-400 font-semibold">G4-G5 (Severe-Extreme) - Kp 8-9</span>
-                    <span class="text-gray-400">Widespread voltage control problems, extensive surface charging.</span>
+                <div class="bg-space-950 p-4 rounded-xl border border-space-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <div>
+                        <span class="text-rose-400 font-bold font-mono">G4 - G5 (Severe - Extreme) - Kp 8-9</span>
+                        <p class="text-gray-400 mt-1">Widespread voltage control problems; extensive surface charging on spacecraft; stunning low-latitude aurora.</p>
+                    </div>
+                    <span class="bg-rose-500/10 text-rose-300 px-3 py-1 rounded-lg font-mono border border-rose-500/30">AURORA: Global / Low Latitudes</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL POPUP -->
-    <div id="telemetryModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-space-900 border border-space-800 p-6 rounded-2xl max-w-lg w-full shadow-2xl relative">
-            <h3 id="modalTitle" class="text-base font-bold text-cyan-400 mb-2">Telemetry Details</h3>
-            <p id="modalBody" class="text-xs text-gray-300 mb-6 font-mono leading-relaxed">Loading telemetry telemetry data from NASA DONKI mission archive...</p>
-            <button onclick="closeModal()" class="w-full bg-space-800 hover:bg-space-700 text-white py-2 rounded-xl border border-space-700 text-xs font-medium transition">Close</button>
+    <!-- CME INSPECT MODAL -->
+    <div id="cmeModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-space-900 border border-space-800 p-6 rounded-2xl max-w-2xl w-full shadow-2xl relative font-mono text-xs">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-sm font-bold text-cyan-400">Coronal Mass Ejection Telemetry (CME-001)</h3>
+                <button onclick="closeModals()" class="text-gray-400 hover:text-white text-base">✕</button>
+            </div>
+            <div class="grid grid-cols-2 gap-4 bg-space-950 p-4 rounded-xl border border-space-800 mb-4">
+                <div><span class="text-gray-500">Eruption Time:</span> <span class="text-white">2026-10-21 18:36Z</span></div>
+                <div><span class="text-gray-500">Active Region:</span> <span class="text-amber-400">AR 3664</span></div>
+                <div><span class="text-gray-500">CME Speed:</span> <span class="text-cyan-400 font-bold">842 km/s</span></div>
+                <div><span class="text-gray-500">Half Angle:</span> <span class="text-white">48°</span></div>
+            </div>
+            <p class="text-gray-300 mb-4 font-sans leading-relaxed text-xs">
+                Partial halo CME observed by SOHO/LASCO C2/C3 associated with M4.2 solar flare. Modeled to arrive at Earth within 42 hours with moderate geomagnetic compression.
+            </p>
+            <button onclick="closeModals()" class="w-full bg-space-800 hover:bg-space-700 text-white py-2.5 rounded-xl border border-space-700 text-xs font-medium transition">Close Telemetry</button>
+        </div>
+    </div>
+
+    <!-- GST INSPECT MODAL -->
+    <div id="gstModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-space-900 border border-space-800 p-6 rounded-2xl max-w-2xl w-full shadow-2xl relative font-mono text-xs">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-sm font-bold text-amber-400">Geomagnetic Storm Telemetry (GST-001)</h3>
+                <button onclick="closeModals()" class="text-gray-400 hover:text-white text-base">✕</button>
+            </div>
+            <div class="bg-space-950 p-4 rounded-xl border border-space-800 mb-4 space-y-2">
+                <div class="flex justify-between"><span class="text-gray-500">NOAA Storm Classification:</span> <span class="text-amber-400 font-bold">G2 (Moderate)</span></div>
+                <div class="flex justify-between"><span class="text-gray-500">Peak Kp Index:</span> <span class="text-cyan-400 font-bold">6.0</span></div>
+                <div class="flex justify-between"><span class="text-gray-500">Observatory Source:</span> <span class="text-white">Canberra Observatory</span></div>
+            </div>
+            <p class="text-gray-300 mb-4 font-sans leading-relaxed text-xs">
+                High-latitude power systems experienced voltage fluctuations. Satellite drag increased slightly. No critical infrastructure anomalies recorded.
+            </p>
+            <button onclick="closeModals()" class="w-full bg-space-800 hover:bg-space-700 text-white py-2.5 rounded-xl border border-space-700 text-xs font-medium transition">Close Telemetry</button>
         </div>
     </div>
 
     <!-- SETTINGS MODAL -->
     <div id="settingsModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-space-900 border border-space-800 p-6 rounded-2xl max-w-md w-full shadow-2xl">
-            <h3 class="text-base font-bold text-amber-400 mb-4">⚙️ Pipeline Configuration</h3>
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-base font-bold text-amber-400">⚙️ Pipeline Configuration</h3>
+                <button onclick="toggleSettings()" class="text-gray-400 hover:text-white">✕</button>
+            </div>
             <div class="space-y-3 text-xs mb-6">
                 <div>
                     <label class="text-gray-400 block mb-1">NASA DONKI API Key</label>
-                    <input type="password" value="************************" class="w-full bg-space-950 border border-space-800 rounded-xl px-3 py-2 text-gray-200 font-mono">
+                    <input type="password" value="DEMO_KEY_SECURE_MASKED" class="w-full bg-space-950 border border-space-800 rounded-xl px-3 py-2 text-gray-200 font-mono">
                 </div>
                 <div>
-                    <label class="text-gray-400 block mb-1">Execution Schedule</label>
+                    <label class="text-gray-400 block mb-1">AWS EventBridge Cron Schedule</label>
                     <input type="text" value="rate(1 day)" class="w-full bg-space-950 border border-space-800 rounded-xl px-3 py-2 text-gray-200 font-mono">
                 </div>
             </div>
-            <button onclick="toggleSettings()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white py-2 rounded-xl text-xs font-medium transition">Save Changes</button>
+            <button onclick="toggleSettings()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white py-2.5 rounded-xl text-xs font-medium transition">Save Configuration</button>
         </div>
     </div>
 
@@ -264,6 +348,7 @@ def lambda_handler(event, context):
         NASA DONKI Pipeline • Powered by AWS Lambda, Amazon ECR & EventBridge • Enterprise Command Center v2.4
     </footer>
 
+    <!-- JavaScript Controller -->
     <script>
         function switchTab(tab) {
             document.getElementById('viewDashboard').classList.add('hidden');
@@ -287,26 +372,20 @@ def lambda_handler(event, context):
         }
 
         function openModal(type) {
-            const modal = document.getElementById('telemetryModal');
-            const title = document.getElementById('modalTitle');
-            const body = document.getElementById('modalBody');
             if(type === 'cme') {
-                title.textContent = "Coronal Mass Ejection Telemetry (CME-001)";
-                body.textContent = "Speed: 842 km/s | Half Angle: 48° | Instruments: SOHO LASCO/C2, C3 | Status: Earth-directed halo CME observed with active solar wind compression.";
+                document.getElementById('cmeModal').classList.remove('hidden');
             } else {
-                title.textContent = "Geomagnetic Storm Telemetry (GST-001)";
-                body.textContent = "NOAA Classification: G2 (Moderate) | Peak Kp: 6.0 | Source: Canberra Observatory | High-latitude power system voltage alarms observed.";
+                document.getElementById('gstModal').classList.remove('hidden');
             }
-            modal.classList.remove('hidden');
         }
 
-        function closeModal() {
-            document.getElementById('telemetryModal').classList.add('hidden');
+        function closeModals() {
+            document.getElementById('cmeModal').classList.add('hidden');
+            document.getElementById('gstModal').classList.add('hidden');
         }
 
         function toggleSettings() {
-            const modal = document.getElementById('settingsModal');
-            modal.classList.toggle('hidden');
+            document.getElementById('settingsModal').classList.toggle('hidden');
         }
 
         function appendLog(message, type = "info") {
