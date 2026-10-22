@@ -375,7 +375,8 @@
                 </div>
                 <button type="button" onclick="closeEventModal()" class="p-2 text-gray-400 hover:text-white" aria-label="Close event details"><i class="fa-solid fa-xmark"></i></button>
             </header>
-            <div id="event-modal-content" class="space-y-4"></div>
+            <div id="event-detail-tabs" role="tablist" aria-label="Event detail sections" class="flex gap-2 overflow-x-auto border-b border-gray-700 pb-2"></div>
+            <div id="event-modal-content" class="space-y-4" role="tabpanel" tabindex="0"></div>
             <div class="flex flex-wrap justify-between gap-3 border-t border-gray-700 pt-4">
                 <a id="event-nasa-link" href="#" target="_blank" rel="noopener noreferrer" class="hidden text-xs font-mono text-cyan-300 hover:text-cyan-200">Open NASA DONKI record <i class="fa-solid fa-arrow-up-right-from-square ml-1"></i></a>
                 <button type="button" onclick="closeEventModal()" class="ml-auto px-4 py-2 rounded-lg bg-space-700 hover:bg-space-600 text-xs font-mono transition">Close</button>
@@ -447,6 +448,7 @@
         let fetchQueued = false;
         let lastFocusedElement = null;
         let eventModalReturnFocus = null;
+        let eventDetailTabs = [];
         let dateWindowDays = 30;
         let dataSource = 'Connecting...';
 
@@ -784,6 +786,29 @@
             });
         }
 
+        function renderEventDetailTabs(tabs, activeIndex = 0) {
+            const tabList = document.getElementById('event-detail-tabs');
+            const panel = document.getElementById('event-modal-content');
+            tabList.innerHTML = tabs.map((tab, index) => `
+                <button type="button" id="event-tab-${index}" role="tab" aria-selected="${index === activeIndex}" aria-controls="event-modal-content" tabindex="${index === activeIndex ? '0' : '-1'}" data-tab-index="${index}" class="px-3 py-2 rounded-t-lg text-xs font-mono whitespace-nowrap transition ${index === activeIndex ? 'text-cyan-300 border-b-2 border-cyan-400 bg-cyan-500/10' : 'text-gray-400 hover:text-white border-b-2 border-transparent'}">${escapeHtml(tab.label)}</button>
+            `).join('');
+            panel.setAttribute('aria-labelledby', `event-tab-${activeIndex}`);
+            panel.innerHTML = tabs[activeIndex].content;
+            tabList.querySelectorAll('[role="tab"]').forEach(button => {
+                button.addEventListener('click', () => renderEventDetailTabs(tabs, Number(button.dataset.tabIndex)));
+                button.addEventListener('keydown', event => {
+                    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+                    event.preventDefault();
+                    const current = Number(button.dataset.tabIndex);
+                    const next = event.key === 'Home' ? 0
+                        : event.key === 'End' ? tabs.length - 1
+                        : (current + (event.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length;
+                    renderEventDetailTabs(tabs, next);
+                    document.getElementById(`event-tab-${next}`).focus();
+                });
+            });
+        }
+
         function openEventDetails(type, event) {
             const isCme = type === 'CME';
             const modal = document.getElementById('event-modal');
@@ -791,41 +816,41 @@
             const eventId = isCme ? event.activityID : event.gstID;
             const time = formatEventTime(event, type);
             const link = document.getElementById('event-nasa-link');
-            const details = [];
-            let content;
+            const sampleNotice = event.isSample ? '<p class="text-xs text-amber-300 bg-amber-950/30 border border-amber-800/50 rounded-lg p-3">This is illustrative sample telemetry, not an observed NASA event.</p>' : '';
+            const makeGrid = items => `<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${items.map(([label, value]) => `<div class="bg-space-900 border border-gray-800 rounded-lg p-3"><p class="text-[10px] uppercase tracking-wider text-gray-500">${escapeHtml(label)}</p><p class="mt-1 text-sm font-mono text-gray-200 break-words">${escapeHtml(value)}</p></div>`).join('')}</div>`;
+            const rawRecord = `<pre class="max-h-96 overflow-auto whitespace-pre-wrap break-all rounded-lg border border-gray-800 bg-space-900 p-4 text-[10px] text-gray-300">${escapeHtml(JSON.stringify(event, null, 2))}</pre>`;
+            let tabs;
 
             if (isCme) {
                 const analysis = (event.cmeAnalyses || []).find(item => Number.isFinite(Number(item.speed))) || (event.cmeAnalyses || [])[0] || {};
                 const instruments = (event.instruments || []).map(item => item.displayName).filter(Boolean);
                 title.textContent = 'Coronal Mass Ejection Telemetry';
                 document.getElementById('event-modal-kind').textContent = event.isSample ? 'SAMPLE TELEMETRY · CME' : 'NASA DONKI · CME';
-                details.push(['Eruption Time', time], ['Speed', analysis.speed !== undefined ? `${analysis.speed} km/s` : 'Not reported'], ['Solar Coordinates', [analysis.latitude, analysis.longitude].filter(value => value !== undefined && value !== null).join(', ') || 'Not reported'], ['Half Angle', analysis.halfAngle !== undefined ? `${analysis.halfAngle}°` : 'Not reported'], ['Type', analysis.type || 'Not reported'], ['Instruments', instruments.join(', ') || 'Not reported']);
-                content = `
-                    ${event.isSample ? '<p class="text-xs text-amber-300 bg-amber-950/30 border border-amber-800/50 rounded-lg p-3">This is illustrative sample telemetry, not an observed NASA event.</p>' : ''}
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${details.map(([label, value]) => `<div class="bg-space-900 border border-gray-800 rounded-lg p-3"><p class="text-[10px] uppercase tracking-wider text-gray-500">${escapeHtml(label)}</p><p class="mt-1 text-sm font-mono text-gray-200 break-words">${escapeHtml(value)}</p></div>`).join('')}</div>
-                    <div class="bg-space-900 border border-gray-800 rounded-lg p-4"><h3 class="text-xs font-mono text-gray-300 mb-2">Catalog Observation Notes</h3><p class="text-sm text-gray-400 leading-relaxed">${escapeHtml(event.note || 'No detailed notes available.')}</p></div>
-                    <details class="bg-space-900 border border-gray-800 rounded-lg p-4"><summary class="cursor-pointer text-xs font-mono text-gray-300">Raw event record</summary><pre class="mt-3 max-h-64 overflow-auto whitespace-pre-wrap break-all text-[10px] text-gray-400">${escapeHtml(JSON.stringify(event, null, 2))}</pre></details>
-                `;
+                tabs = [
+                    { label: 'Overview', content: `${sampleNotice}${makeGrid([['Eruption Time', time], ['Event ID', eventId || 'N/A']])}<div class="bg-space-900 border border-gray-800 rounded-lg p-4"><h3 class="text-xs font-mono text-gray-300 mb-2">Catalog Observation Notes</h3><p class="text-sm text-gray-400 leading-relaxed">${escapeHtml(event.note || 'No detailed notes available.')}</p></div>` },
+                    { label: 'Analysis', content: makeGrid([['Speed', analysis.speed !== undefined ? `${analysis.speed} km/s` : 'Not reported'], ['Solar Coordinates', [analysis.latitude, analysis.longitude].filter(value => value !== undefined && value !== null).join(', ') || 'Not reported'], ['Half Angle', analysis.halfAngle !== undefined ? `${analysis.halfAngle}°` : 'Not reported'], ['Type', analysis.type || 'Not reported']]) },
+                    { label: 'Instruments', content: `<div class="bg-space-900 border border-gray-800 rounded-lg p-4"><h3 class="text-xs font-mono text-gray-300 mb-3">Observing Instruments &amp; Spacecraft</h3>${instruments.length ? `<ul class="space-y-2">${instruments.map(name => `<li class="text-sm text-gray-300"><i class="fa-solid fa-satellite-dish text-cyan-400 mr-2"></i>${escapeHtml(name)}</li>`).join('')}</ul>` : '<p class="text-sm text-gray-400">No instrument details reported.</p>'}</div>` },
+                    { label: 'Raw JSON', content: rawRecord }
+                ];
             } else {
                 const peakKp = getPeakKp(event);
                 const level = getStormLevel(peakKp);
                 title.textContent = 'Geomagnetic Storm Telemetry';
                 document.getElementById('event-modal-kind').textContent = event.isSample ? 'SAMPLE TELEMETRY · GST' : 'NASA DONKI · GST';
-                details.push(['Storm Start', time], ['Peak Kp', peakKp ? peakKp.toFixed(1) : 'Not reported'], ['NOAA Classification', `${level.code} (${level.label})`], ['Measurements', String((event.allKpIndex || []).length)]);
-                const kpReadings = (event.allKpIndex || []).map(reading => {
+                const readings = (event.allKpIndex || []).map(reading => {
                     const kp = Number(reading.kpIndex);
-                    return `${Number.isFinite(kp) ? kp.toFixed(1) : 'N/A'}${reading.observedTime ? ` · ${reading.observedTime}` : ''}`;
-                });
-                content = `
-                    ${event.isSample ? '<p class="text-xs text-amber-300 bg-amber-950/30 border border-amber-800/50 rounded-lg p-3">This is illustrative sample telemetry, not an observed NASA event.</p>' : ''}
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${details.map(([label, value]) => `<div class="bg-space-900 border border-gray-800 rounded-lg p-3"><p class="text-[10px] uppercase tracking-wider text-gray-500">${escapeHtml(label)}</p><p class="mt-1 text-sm font-mono text-gray-200 break-words">${escapeHtml(value)}</p></div>`).join('')}</div>
-                    <div class="bg-space-900 border border-gray-800 rounded-lg p-4"><h3 class="text-xs font-mono text-gray-300 mb-2">Kp Readings</h3><p class="text-sm text-gray-400 leading-relaxed">${escapeHtml(kpReadings.join('  |  ') || 'No Kp readings reported.')}</p></div>
-                    <details class="bg-space-900 border border-gray-800 rounded-lg p-4"><summary class="cursor-pointer text-xs font-mono text-gray-300">Raw event record</summary><pre class="mt-3 max-h-64 overflow-auto whitespace-pre-wrap break-all text-[10px] text-gray-400">${escapeHtml(JSON.stringify(event, null, 2))}</pre></details>
-                `;
+                    return `<li class="flex justify-between gap-3 border-b border-gray-800 py-2 text-sm font-mono"><span class="text-gray-400">${escapeHtml(reading.observedTime || 'Observation')}</span><span class="text-amber-300">${Number.isFinite(kp) ? kp.toFixed(1) : 'N/A'} Kp</span></li>`;
+                }).join('');
+                tabs = [
+                    { label: 'Overview', content: `${sampleNotice}${makeGrid([['Storm Start', time], ['Event ID', eventId || 'N/A'], ['NOAA Classification', `${level.code} (${level.label})`], ['Peak Kp', peakKp ? peakKp.toFixed(1) : 'Not reported']])}` },
+                    { label: 'Kp Readings', content: `<div class="bg-space-900 border border-gray-800 rounded-lg p-4"><h3 class="text-xs font-mono text-gray-300 mb-2">Geomagnetic Measurements</h3>${readings ? `<ul>${readings}</ul>` : '<p class="text-sm text-gray-400">No Kp readings reported.</p>'}</div>` },
+                    { label: 'Raw JSON', content: rawRecord }
+                ];
             }
 
+            eventDetailTabs = tabs;
             document.getElementById('event-modal-id').textContent = `ID: ${eventId || 'N/A'}`;
-            document.getElementById('event-modal-content').innerHTML = content;
+            renderEventDetailTabs(eventDetailTabs);
             link.classList.add('hidden');
             link.removeAttribute('href');
             if (!event.isSample && eventId) {
