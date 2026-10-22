@@ -52,6 +52,7 @@
                 <span class="w-2 h-2 mr-2 bg-emerald-400 rounded-full animate-pulse"></span> AWS Lambda: Active
             </span>
             <button onclick="location.reload()" class="bg-space-800 hover:bg-space-700 p-2 rounded-xl border border-space-700 text-gray-300 transition" title="Refresh Telemetry">🔄</button>
+            <button onclick="toggleSettings()" class="bg-space-800 hover:bg-space-700 p-2 rounded-xl border border-space-700 text-gray-300 transition" title="Settings">⚙️</button>
         </div>
     </header>
 
@@ -138,7 +139,7 @@
             </div>
         </div>
 
-        <!-- Feeds Grid -->
+        <!-- Feeds Grid with Inspect Modals -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="bg-space-900 border border-space-800 p-5 rounded-2xl shadow-lg">
                 <div class="flex justify-between items-center mb-4">
@@ -154,7 +155,7 @@
                         <p class="text-gray-300 leading-relaxed mb-3">Partial halo Coronal Mass Ejection detected by SOHO/LASCO C2 and C3.</p>
                         <div class="flex justify-between items-center pt-2 border-t border-space-800 text-[11px]">
                             <span class="text-gray-400 font-mono">Speed: <span class="text-cyan-300">842 km/s</span></span>
-                            <span class="text-cyan-400 cursor-pointer hover:underline">Inspect ↗</span>
+                            <button onclick="openModal('cme')" class="text-cyan-400 hover:underline font-medium">Inspect ↗</button>
                         </div>
                     </div>
                 </div>
@@ -171,9 +172,12 @@
                             <div class="font-mono text-amber-400 font-bold mb-1">GST-001 <span class="text-gray-500 font-normal ml-2">2026-10-19 18:00Z</span></div>
                             <p class="text-gray-300">NOAA Classification: <span class="text-amber-300 font-semibold">G2 (Moderate)</span></p>
                         </div>
-                        <div class="text-right bg-space-900 p-3 rounded-xl border border-space-800">
-                            <span class="text-[10px] text-gray-400 uppercase">Peak Kp</span>
-                            <span class="text-xl font-bold text-amber-400 block">6.0</span>
+                        <div class="flex items-center space-x-4">
+                            <div class="text-right bg-space-900 p-3 rounded-xl border border-space-800">
+                                <span class="text-[10px] text-gray-400 uppercase">Peak Kp</span>
+                                <span class="text-xl font-bold text-amber-400 block">6.0</span>
+                            </div>
+                            <button onclick="openModal('gst')" class="text-cyan-400 hover:underline font-medium">Inspect ↗</button>
                         </div>
                     </div>
                 </div>
@@ -186,9 +190,23 @@
         <div class="bg-space-900 border border-space-800 p-6 rounded-2xl shadow-lg">
             <h2 class="text-lg font-bold text-cyan-400 mb-2">☁️ Automated Cloud Architecture & Data Flow</h2>
             <p class="text-xs text-gray-400 mb-6">Serverless event-driven pipeline embedded in Amazon EventBridge and executed on AWS Lambda in us-east-1.</p>
-            <div class="bg-space-950 p-4 rounded-xl border border-space-800 font-mono text-xs text-emerald-400 overflow-x-auto">
+            <div class="bg-space-950 p-4 rounded-xl border border-space-800 font-mono text-xs text-emerald-400 overflow-x-auto mb-6">
                 [Amazon EventBridge] ➔ (Cron Schedule) ➔ [AWS Lambda Container] ➔ [NASA DONKI API] ➔ [Amazon SNS & Log Stream]
             </div>
+            <h3 class="text-sm font-bold text-gray-200 mb-2">Container Runtime Source: app.py</h3>
+            <pre class="bg-space-950 p-4 rounded-xl border border-space-800 font-mono text-xs text-cyan-300 overflow-x-auto">
+import os, requests, json
+
+def lambda_handler(event, context):
+    api_key = os.environ.get("NASA_API_KEY", "DEMO_KEY")
+    url = f"https://api.nasa.gov/DONKI/CME?api_key={api_key}"
+    response = requests.get(url)
+    data = response.json()
+    return {
+        "statusCode": 200,
+        "body": json.dumps({"status": "synchronized", "events_count": len(data)})
+    }
+            </pre>
         </div>
     </div>
 
@@ -211,6 +229,33 @@
                     <span class="text-gray-400">Widespread voltage control problems, extensive surface charging.</span>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- MODAL POPUP -->
+    <div id="telemetryModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-space-900 border border-space-800 p-6 rounded-2xl max-w-lg w-full shadow-2xl relative">
+            <h3 id="modalTitle" class="text-base font-bold text-cyan-400 mb-2">Telemetry Details</h3>
+            <p id="modalBody" class="text-xs text-gray-300 mb-6 font-mono leading-relaxed">Loading telemetry telemetry data from NASA DONKI mission archive...</p>
+            <button onclick="closeModal()" class="w-full bg-space-800 hover:bg-space-700 text-white py-2 rounded-xl border border-space-700 text-xs font-medium transition">Close</button>
+        </div>
+    </div>
+
+    <!-- SETTINGS MODAL -->
+    <div id="settingsModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-space-900 border border-space-800 p-6 rounded-2xl max-w-md w-full shadow-2xl">
+            <h3 class="text-base font-bold text-amber-400 mb-4">⚙️ Pipeline Configuration</h3>
+            <div class="space-y-3 text-xs mb-6">
+                <div>
+                    <label class="text-gray-400 block mb-1">NASA DONKI API Key</label>
+                    <input type="password" value="************************" class="w-full bg-space-950 border border-space-800 rounded-xl px-3 py-2 text-gray-200 font-mono">
+                </div>
+                <div>
+                    <label class="text-gray-400 block mb-1">Execution Schedule</label>
+                    <input type="text" value="rate(1 day)" class="w-full bg-space-950 border border-space-800 rounded-xl px-3 py-2 text-gray-200 font-mono">
+                </div>
+            </div>
+            <button onclick="toggleSettings()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white py-2 rounded-xl text-xs font-medium transition">Save Changes</button>
         </div>
     </div>
 
@@ -239,6 +284,29 @@
                 document.getElementById('viewGuide').classList.remove('hidden');
                 document.getElementById('tabGuide').className = "bg-cyan-500/20 text-cyan-300 px-4 py-1.5 rounded-lg font-medium shadow border border-cyan-500/30 flex items-center space-x-1.5";
             }
+        }
+
+        function openModal(type) {
+            const modal = document.getElementById('telemetryModal');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+            if(type === 'cme') {
+                title.textContent = "Coronal Mass Ejection Telemetry (CME-001)";
+                body.textContent = "Speed: 842 km/s | Half Angle: 48° | Instruments: SOHO LASCO/C2, C3 | Status: Earth-directed halo CME observed with active solar wind compression.";
+            } else {
+                title.textContent = "Geomagnetic Storm Telemetry (GST-001)";
+                body.textContent = "NOAA Classification: G2 (Moderate) | Peak Kp: 6.0 | Source: Canberra Observatory | High-latitude power system voltage alarms observed.";
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('telemetryModal').classList.add('hidden');
+        }
+
+        function toggleSettings() {
+            const modal = document.getElementById('settingsModal');
+            modal.classList.toggle('hidden');
         }
 
         function appendLog(message, type = "info") {
