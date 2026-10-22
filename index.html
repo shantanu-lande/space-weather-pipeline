@@ -122,7 +122,7 @@
                 </div>
                 <p class="text-xs font-mono text-gray-400 uppercase tracking-wider">EventBridge Schedule</p>
                 <div class="flex items-baseline space-x-2 mt-2">
-                    <span class="text-2xl font-bold font-mono text-amber-400">rate(1 day)</span>
+                    <span id="schedule-summary" class="text-2xl font-bold font-mono text-amber-400">rate(1 day)</span>
                     <span class="text-xs text-amber-400 font-mono bg-amber-950/50 px-2 py-0.5 rounded border border-amber-800/50">Scheduled</span>
                 </div>
                 <div class="mt-4 flex items-center justify-between text-xs text-gray-400 font-mono border-t border-gray-700/50 pt-3">
@@ -190,6 +190,10 @@
                         <div class="flex items-center justify-between text-xs font-mono text-gray-400">
                             <span>Runtime Environment:</span>
                             <span class="text-gray-200">Python 3.9 (Docker)</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs font-mono text-gray-400">
+                            <span>Region Deployment:</span>
+                            <span id="runner-region" class="text-gray-200">ap-south-2</span>
                         </div>
                         <div class="flex items-center justify-between text-xs font-mono text-gray-400">
                             <span>API Authentication:</span>
@@ -303,12 +307,12 @@
                 <article class="bg-space-900 border border-amber-800/40 rounded-xl p-5 space-y-3">
                     <span class="text-xs font-mono text-amber-400">STEP 1 · SCHEDULE</span>
                     <h3 class="font-bold">Amazon EventBridge</h3>
-                    <p class="text-xs text-gray-400 leading-relaxed">A <code class="text-amber-300">rate(1 day)</code> rule dispatches a scheduled event to the Lambda target.</p>
+                    <p class="text-xs text-gray-400 leading-relaxed">A <code id="architecture-schedule" class="text-amber-300">rate(1 day)</code> rule dispatches a scheduled event to the Lambda target.</p>
                 </article>
                 <article class="bg-space-900 border border-cyan-800/40 rounded-xl p-5 space-y-3">
                     <span class="text-xs font-mono text-cyan-400">STEP 2 · COMPUTE</span>
                     <h3 class="font-bold">AWS Lambda (container)</h3>
-                    <p class="text-xs text-gray-400 leading-relaxed">The Python 3.9 handler runs from the <code class="text-cyan-300">space-weather-repo</code> ECR image in <code class="text-cyan-300">ap-south-2</code>.</p>
+                    <p class="text-xs text-gray-400 leading-relaxed">The Python 3.9 handler runs from the <code class="text-cyan-300">space-weather-repo</code> ECR image in <code id="architecture-region" class="text-cyan-300">ap-south-2</code>.</p>
                 </article>
                 <article class="bg-space-900 border border-blue-800/40 rounded-xl p-5 space-y-3">
                     <span class="text-xs font-mono text-blue-400">STEP 3 · INGESTION</span>
@@ -400,8 +404,8 @@
             <div class="space-y-4">
                 <div>
                     <label class="block text-xs font-mono text-gray-300 uppercase tracking-wider mb-2">NASA DONKI API Key</label>
-                    <input type="password" id="api-key-input" value="TpDgPRmbfBhNwbDkLwHWdBKR8Wmw7bwGQr7pG7CL" class="w-full bg-space-900 border border-gray-700 rounded-xl px-4 py-2.5 text-sm font-mono text-cyan-300 focus:outline-none focus:border-cyan-500 transition">
-                    <p class="text-xs text-gray-500 mt-1.5">Used for NASA requests made during this page session.</p>
+                    <input type="password" id="api-key-input" value="DEMO_KEY" autocomplete="off" class="w-full bg-space-900 border border-gray-700 rounded-xl px-4 py-2.5 text-sm font-mono text-cyan-300 focus:outline-none focus:border-cyan-500 transition">
+                    <p class="text-xs text-gray-500 mt-1.5">Uses NASA's public DEMO_KEY by default. For higher limits, <a href="https://api.nasa.gov/" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:text-cyan-300 underline">get a NASA API key</a>. This static page sends your key directly to api.nasa.gov.</p>
                 </div>
 
                 <div>
@@ -409,7 +413,19 @@
                     <div class="grid grid-cols-2 gap-3">
                         <div class="bg-space-900 p-3 rounded-xl border border-gray-700/80 text-xs font-mono">
                             <span class="text-gray-500 block">Region:</span>
-                            <span class="text-gray-200">ap-south-2</span>
+                            <label class="sr-only" for="region-input">AWS region</label>
+                            <select id="region-input" class="mt-1 w-full bg-transparent text-gray-200 focus:outline-none focus:text-cyan-300">
+                                <option value="ap-south-2">ap-south-2</option>
+                                <option value="ap-south-1">ap-south-1</option>
+                                <option value="ap-southeast-1">ap-southeast-1</option>
+                                <option value="ap-southeast-2">ap-southeast-2</option>
+                                <option value="ap-northeast-1">ap-northeast-1</option>
+                                <option value="eu-west-1">eu-west-1</option>
+                                <option value="eu-central-1">eu-central-1</option>
+                                <option value="us-east-1">us-east-1</option>
+                                <option value="us-east-2">us-east-2</option>
+                                <option value="us-west-2">us-west-2</option>
+                            </select>
                         </div>
                         <div class="bg-space-900 p-3 rounded-xl border border-gray-700/80 text-xs font-mono">
                             <span class="text-gray-500 block">Repository:</span>
@@ -420,9 +436,13 @@
 
                 <div>
                     <label class="block text-xs font-mono text-gray-300 uppercase tracking-wider mb-2">EventBridge Schedule Rule</label>
-                    <input type="text" value="rate(1 day)" readonly class="w-full bg-space-900/50 border border-gray-800 rounded-xl px-4 py-2.5 text-sm font-mono text-amber-400 cursor-not-allowed">
+                    <input type="text" id="schedule-input" value="rate(1 day)" aria-describedby="schedule-help schedule-error" class="w-full bg-space-900 border border-gray-700 rounded-xl px-4 py-2.5 text-sm font-mono text-amber-400 focus:outline-none focus:border-amber-500 transition">
+                    <p id="schedule-help" class="text-xs text-gray-500 mt-1.5">Use an EventBridge rate(...) or cron(...) expression. This updates the dashboard configuration only.</p>
+                    <p id="schedule-error" class="hidden text-xs text-red-400 mt-1.5" role="alert"></p>
                 </div>
             </div>
+
+            <p class="text-xs text-amber-300 bg-amber-950/30 border border-amber-800/40 rounded-lg p-3">These settings are saved in this browser and update this dashboard only. They do not deploy changes to AWS.</p>
 
             <div class="flex justify-end space-x-3 pt-4 border-t border-gray-700">
                 <button onclick="closeSettingsModal()" class="px-4 py-2 rounded-xl bg-space-700 hover:bg-space-600 text-xs font-mono transition">Cancel</button>
@@ -435,13 +455,13 @@
     <footer class="border-t border-gray-800 bg-space-800/50 py-6 mt-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row gap-2 justify-between items-center text-xs text-gray-500 font-mono">
             <p>NASA Space Apps Challenge • Automated Space Weather Data Pipeline (CME/GST) on AWS</p>
-            <p class="flex items-center gap-2"><span id="connection-indicator" class="w-2 h-2 rounded-full bg-gray-600"></span><span id="connection-status">Connecting to NASA DONKI...</span><span>•</span><span>Region: ap-south-2</span></p>
+            <p class="flex items-center gap-2"><span id="connection-indicator" class="w-2 h-2 rounded-full bg-gray-600"></span><span id="connection-status">Connecting to NASA DONKI...</span><span>•</span><span>Region: <span id="footer-region">ap-south-2</span></span></p>
         </div>
     </footer>
 
     <!-- JavaScript Application Logic -->
     <script>
-        let apiKey = "TpDgPRmbfBhNwbDkLwHWdBKR8Wmw7bwGQr7pG7CL";
+        let apiKey = 'DEMO_KEY';
         let cmeEvents = [];
         let gstEvents = [];
         let isFetching = false;
@@ -451,8 +471,10 @@
         let eventDetailTabs = [];
         let dateWindowDays = 30;
         let dataSource = 'Connecting...';
+        let awsRegion = 'ap-south-2';
+        let scheduleRule = 'rate(1 day)';
 
-        // Fetch live or mock NASA data on load
+        // Load the last successful NASA response, then refresh it from DONKI.
         window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('event-search').addEventListener('input', () => {
                 renderCMEData();
@@ -470,6 +492,10 @@
             document.getElementById('event-modal').addEventListener('click', event => {
                 if (event.target.id === 'event-modal') closeEventModal();
             });
+            loadDashboardSettings();
+            document.getElementById('api-key-status').textContent = apiKey === 'DEMO_KEY' ? 'Public DEMO_KEY' : 'Configured (Masked)';
+            document.getElementById('schedule-input').addEventListener('input', validateScheduleInput);
+            loadCachedNasaEvents();
             fetchSpaceWeatherData();
             startCountdownTimer();
         });
@@ -510,7 +536,7 @@
 
         async function copyArchitectureSummary() {
             const summary = [
-                'EventBridge (rate(1 day)) -> AWS Lambda container (Python 3.9, ap-south-2, space-weather-repo)',
+                `EventBridge (${scheduleRule}) -> AWS Lambda container (Python 3.9, ${awsRegion}, space-weather-repo)`,
                 '-> NASA DONKI CME and GST APIs -> CloudWatch Logs',
                 'Dashboard test runner is simulated; it does not invoke AWS resources.'
             ].join('\n');
@@ -544,6 +570,10 @@
         function openSettingsModal() {
             const modal = document.getElementById('settings-modal');
             lastFocusedElement = document.activeElement;
+            document.getElementById('api-key-input').value = apiKey;
+            document.getElementById('region-input').value = awsRegion;
+            document.getElementById('schedule-input').value = scheduleRule;
+            validateScheduleInput();
             modal.classList.remove('hidden');
             modal.querySelector('[role="dialog"]').focus();
         }
@@ -554,17 +584,135 @@
         }
 
         function saveSettings() {
-            const val = document.getElementById('api-key-input').value.trim();
-            if (!val) {
+            const newApiKey = document.getElementById('api-key-input').value.trim();
+            const newRegion = document.getElementById('region-input').value;
+            const newSchedule = document.getElementById('schedule-input').value.trim();
+            if (!newApiKey) {
                 appendLog("[System] Enter a NASA API key before saving settings.", "warning");
                 document.getElementById('api-key-input').focus();
                 return;
             }
-            apiKey = val;
-            document.getElementById('api-key-status').textContent = "Configured (Masked)";
-            appendLog("[System] NASA API key updated for this page session.", "success");
+            const scheduleError = validateScheduleRule(newSchedule);
+            const regionInput = document.getElementById('region-input');
+            if (!regionInput.value) {
+                appendLog('[System] Select a valid AWS region before saving settings.', 'warning');
+                regionInput.focus();
+                return;
+            }
+            if (scheduleError) {
+                showScheduleError(scheduleError);
+                document.getElementById('schedule-input').focus();
+                appendLog(`[System] ${scheduleError}`, 'warning');
+                return;
+            }
+
+            const apiKeyChanged = apiKey !== newApiKey;
+            apiKey = newApiKey;
+            awsRegion = newRegion;
+            scheduleRule = newSchedule;
+            applyDashboardSettings();
+            saveDashboardSettings();
+            document.getElementById('api-key-status').textContent = apiKey === 'DEMO_KEY' ? 'Public DEMO_KEY' : 'Configured (Masked)';
+            appendLog(`[System] Dashboard settings saved: region ${awsRegion}, schedule ${scheduleRule}. These settings do not modify AWS resources.`, "success");
             closeSettingsModal();
-            fetchSpaceWeatherData();
+            if (apiKeyChanged) {
+                appendLog('[System] NASA API key updated for this page session.', 'info');
+                fetchSpaceWeatherData();
+            }
+        }
+
+        function validateScheduleRule(value) {
+            const rate = value.match(/^rate\(\s*(\d+)\s+(minute|minutes|hour|hours|day|days)\s*\)$/i);
+            if (rate) {
+                const amount = Number(rate[1]);
+                const unit = rate[2].toLowerCase();
+                if (amount < 1) return 'Rate must be at least 1 minute.';
+                if ((amount === 1 && unit.endsWith('s')) || (amount !== 1 && !unit.endsWith('s'))) {
+                    return 'Use a singular unit for 1 (for example, rate(1 day)) and plural units otherwise.';
+                }
+                if (unit.startsWith('minute') && amount < 1) return 'EventBridge rate schedules must be at least 1 minute.';
+                return '';
+            }
+
+            const cron = value.match(/^cron\(([^)]+)\)$/i);
+            if (!cron) return 'Enter a rate(...) or six-field cron(...) expression.';
+            const fields = cron[1].trim().split(/\s+/);
+            if (fields.length !== 6) return 'EventBridge cron expressions must contain 6 fields: minute hour day-of-month month day-of-week year.';
+            if (fields.some(field => !/^[0-9A-Za-z*?,/#L\-]+$/.test(field))) return 'Cron fields contain unsupported characters.';
+            const dayOfMonth = fields[2];
+            const dayOfWeek = fields[4];
+            if ((dayOfMonth === '?' && dayOfWeek === '?') || (dayOfMonth !== '?' && dayOfWeek !== '?')) {
+                return 'Use ? in either day-of-month or day-of-week, but not both.';
+            }
+            if (fields.some((field, index) => field.includes('?') && index !== 2 && index !== 4)) {
+                return '? is only valid in day-of-month or day-of-week.';
+            }
+            if ((dayOfMonth !== '?' && dayOfMonth.includes('?')) || (dayOfWeek !== '?' && dayOfWeek.includes('?'))) {
+                return '? must be the only value in day-of-month or day-of-week.';
+            }
+            if (fields.some(field => /\/0(?:,|$)/.test(field))) return 'Cron step values must be greater than 0.';
+            const ranges = [[0, 59], [0, 23], [1, 31], [1, 12], [1, 7], [1970, 2199]];
+            for (let index = 0; index < fields.length; index++) {
+                if ([2, 4].includes(index) && fields[index] === '?') continue;
+                const numbers = fields[index].match(/\d+/g) || [];
+                if (numbers.some(number => Number(number) < ranges[index][0] || Number(number) > ranges[index][1])) {
+                    return `Cron field ${index + 1} contains a value outside its allowed range.`;
+                }
+            }
+            return '';
+        }
+
+        function showScheduleError(message) {
+            const error = document.getElementById('schedule-error');
+            error.textContent = message;
+            error.classList.toggle('hidden', !message);
+            document.getElementById('schedule-input').setAttribute('aria-invalid', String(Boolean(message)));
+        }
+
+        function validateScheduleInput() {
+            showScheduleError(validateScheduleRule(document.getElementById('schedule-input').value.trim()));
+        }
+
+        function loadDashboardSettings() {
+            try {
+                const saved = localStorage.getItem('space-weather-dashboard-settings-v1');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (typeof parsed.region === 'string' && Array.from(document.getElementById('region-input').options).some(option => option.value === parsed.region)) {
+                        awsRegion = parsed.region;
+                    }
+                    if (typeof parsed.schedule === 'string' && !validateScheduleRule(parsed.schedule)) {
+                        scheduleRule = parsed.schedule;
+                    }
+                }
+            } catch (err) {
+                const message = err instanceof Error ? err.message : String(err);
+                appendLog(`Could not load saved dashboard settings: ${message}`, 'warning');
+            }
+            document.getElementById('region-input').value = awsRegion;
+            document.getElementById('schedule-input').value = scheduleRule;
+            applyDashboardSettings();
+        }
+
+        function saveDashboardSettings() {
+            try {
+                localStorage.setItem('space-weather-dashboard-settings-v1', JSON.stringify({
+                    region: awsRegion,
+                    schedule: scheduleRule
+                }));
+            } catch (err) {
+                const message = err instanceof Error ? err.message : String(err);
+                appendLog(`Settings are active for this page but could not be saved in browser storage: ${message}`, 'warning');
+            }
+        }
+
+        function applyDashboardSettings() {
+            document.getElementById('schedule-summary').textContent = scheduleRule;
+            document.getElementById('architecture-schedule').textContent = scheduleRule;
+            document.getElementById('runner-region').textContent = awsRegion;
+            document.getElementById('architecture-region').textContent = awsRegion;
+            document.getElementById('footer-region').textContent = awsRegion;
+            updateCountdownForSchedule();
         }
 
         function appendLog(message, type = 'info') {
@@ -597,34 +745,56 @@
             refreshButton.setAttribute('aria-busy', 'true');
             refreshButton.innerHTML = '<i class="fa-solid fa-rotate fa-spin"></i>';
             appendLog("Initiating data fetch from NASA DONKI API endpoints...", "info");
-            
-            try {
-                const endDate = new Date();
-                const startDate = new Date(endDate);
-                startDate.setUTCDate(startDate.getUTCDate() - dateWindowDays);
-                const dateParams = `startDate=${startDate.toISOString().slice(0, 10)}&endDate=${endDate.toISOString().slice(0, 10)}`;
-                const endpoints = ['CME', 'GST'].map(async endpoint => {
-                    const url = `https://api.nasa.gov/DONKI/${endpoint}?${dateParams}&api_key=${encodeURIComponent(apiKey)}`;
-                    const response = await fetch(url);
-                    if (!response.ok) throw new Error(`${endpoint} HTTP status ${response.status}`);
-                    const data = await response.json();
-                    if (!Array.isArray(data)) throw new Error(`${endpoint} returned unexpected data.`);
-                    return data;
-                });
-                const [cmeData, gstData] = await Promise.all(endpoints);
 
-                cmeEvents = cmeData;
-                gstEvents = gstData;
-                dataSource = 'NASA DONKI API';
-                updateConnectionStatus(true);
+            const endDate = new Date();
+            const startDate = new Date(endDate);
+            startDate.setUTCDate(startDate.getUTCDate() - dateWindowDays);
+            const dateParams = `startDate=${startDate.toISOString().slice(0, 10)}&endDate=${endDate.toISOString().slice(0, 10)}`;
+            const fetchEndpoint = async endpoint => {
+                const url = `https://api.nasa.gov/DONKI/${endpoint}?${dateParams}&api_key=${encodeURIComponent(apiKey)}`;
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`${endpoint} HTTP status ${response.status}`);
+                const data = await response.json();
+                if (!Array.isArray(data)) throw new Error(`${endpoint} returned unexpected data.`);
+                return data;
+            };
+
+            try {
+                const [cmeResult, gstResult] = await Promise.allSettled([
+                    fetchEndpoint('CME'),
+                    fetchEndpoint('GST')
+                ]);
+                const errors = [];
+
+                if (cmeResult.status === 'fulfilled') cmeEvents = cmeResult.value;
+                else errors.push(cmeResult.reason instanceof Error ? cmeResult.reason.message : String(cmeResult.reason));
+                if (gstResult.status === 'fulfilled') gstEvents = gstResult.value;
+                else errors.push(gstResult.reason instanceof Error ? gstResult.reason.message : String(gstResult.reason));
+
                 renderCMEData();
                 renderGSTData();
-                appendLog(`Successfully synchronized ${cmeData.length} CME events and ${gstData.length} GST events. Source: NASA DONKI API`, "success");
 
-            } catch (err) {
-                const message = err instanceof Error ? err.message : String(err);
-                appendLog(`API Warning / Rate Limit: ${message}. Loading fallback telemetry...`, "warning");
-                loadFallbackData();
+                if (errors.length === 0) {
+                    dataSource = 'NASA DONKI API';
+                    updateConnectionStatus(true);
+                    saveCachedNasaEvents();
+                    appendLog(`Successfully synchronized ${cmeEvents.length} CME events and ${gstEvents.length} GST events from NASA DONKI.`, "success");
+                } else if (cmeResult.status === 'fulfilled' || gstResult.status === 'fulfilled') {
+                    dataSource = 'NASA DONKI (partial)';
+                    updateConnectionStatus(true);
+                    errors.forEach(message => appendLog(`NASA DONKI request failed: ${message}`, "warning"));
+                    appendLog('One feed refreshed; the unavailable feed is showing its last NASA response, if available.', "warning");
+                } else {
+                    dataSource = 'NASA DONKI unavailable';
+                    updateConnectionStatus(false);
+                    errors.forEach(message => appendLog(`NASA DONKI request failed: ${message}`, "error"));
+                    if (!cmeEvents.length && !gstEvents.length) {
+                        showUnavailableFeeds(errors);
+                        appendLog('No observed NASA records are available to display. Use Sync to retry when DONKI is reachable.', "warning");
+                    } else {
+                        appendLog('Keeping previously fetched NASA records; no sample events were substituted.', "warning");
+                    }
+                }
             } finally {
                 isFetching = false;
                 refreshButton.disabled = false;
@@ -636,6 +806,55 @@
                     fetchSpaceWeatherData();
                 }
             }
+        }
+
+        function loadCachedNasaEvents() {
+            try {
+                const cached = localStorage.getItem('nasa-donki-events-v1');
+                if (!cached) return;
+                const parsed = JSON.parse(cached);
+                if (!Array.isArray(parsed.cme) || !Array.isArray(parsed.gst) || !parsed.savedAt) {
+                    throw new Error('Cached NASA DONKI data has an invalid format.');
+                }
+                cmeEvents = parsed.cme;
+                gstEvents = parsed.gst;
+                dataSource = 'NASA DONKI cache';
+                updateConnectionStatus(true);
+                renderCMEData();
+                renderGSTData();
+                appendLog(`Loaded ${cmeEvents.length} CME and ${gstEvents.length} GST records from the last successful NASA DONKI sync (${new Date(parsed.savedAt).toLocaleString()}).`, 'info');
+            } catch (err) {
+                const message = err instanceof Error ? err.message : String(err);
+                appendLog(`Could not load cached NASA records: ${message}`, 'warning');
+            }
+        }
+
+        function saveCachedNasaEvents() {
+            try {
+                localStorage.setItem('nasa-donki-events-v1', JSON.stringify({
+                    cme: cmeEvents,
+                    gst: gstEvents,
+                    savedAt: new Date().toISOString()
+                }));
+            } catch (err) {
+                const message = err instanceof Error ? err.message : String(err);
+                appendLog(`NASA data was fetched but could not be cached: ${message}`, 'warning');
+            }
+        }
+
+        function showUnavailableFeeds(errors) {
+            const rateLimited = errors.some(message => message.includes('HTTP status 429'));
+            const helpText = rateLimited
+                ? 'NASA DONKI rate limit reached. Enter your NASA API key in Pipeline Settings, then sync again.'
+                : 'NASA DONKI is unavailable. No observed NASA records are loaded. Select Sync NASA DONKI API to retry.';
+            const message = `<div class="text-center py-12 text-gray-400 font-mono text-xs">${helpText}</div>`;
+            document.getElementById('cme-cards-container').innerHTML = message;
+            document.getElementById('gst-cards-container').innerHTML = message;
+            document.getElementById('cme-count-badge').textContent = '—';
+            document.getElementById('gst-count-badge').textContent = '—';
+            document.getElementById('gst-kp-summary').textContent = 'No observed data';
+            document.getElementById('cme-badge-count').textContent = 'Unavailable';
+            document.getElementById('gst-badge-count').textContent = 'Unavailable';
         }
 
         function escapeHtml(value) {
@@ -693,7 +912,11 @@
         }
 
         function updateConnectionStatus(connected) {
-            const label = connected ? (dataSource === 'NASA DONKI API' ? 'DONKI API Connected' : 'Sample telemetry') : 'NASA DONKI unavailable';
+            const label = connected
+                ? dataSource === 'NASA DONKI API' ? 'DONKI API Connected'
+                    : dataSource === 'NASA DONKI (partial)' ? 'DONKI partially connected'
+                        : 'Cached NASA DONKI data'
+                : 'NASA DONKI unavailable';
             document.getElementById('connection-status').textContent = label;
             document.getElementById('connection-indicator').className = `w-2 h-2 rounded-full ${connected ? (dataSource === 'NASA DONKI API' ? 'bg-green-500' : 'bg-amber-400') : 'bg-red-500'}`;
             document.getElementById('data-source-label').textContent = dataSource;
@@ -777,7 +1000,7 @@
                         <span class="text-amber-300 font-bold">Peak Kp: ${kpIndex ? kpIndex.toFixed(1) : 'N/A'}</span>
                     </div>
                     <div class="flex items-center justify-between pt-2 border-t border-gray-800 text-xs font-mono text-gray-400">
-                        <span>Source: <span class="text-gray-200">${gst.isSample ? 'Sample telemetry' : 'NASA DONKI'}</span></span>
+                        <span>Source: <span class="text-gray-200">NASA DONKI</span></span>
                         <button type="button" data-inspect="GST" data-index="${index}" class="text-amber-300 hover:text-amber-200 whitespace-nowrap">Inspect <i class="fa-solid fa-arrow-up-right-from-square ml-1"></i></button>
                     </div>
                 `;
@@ -816,7 +1039,6 @@
             const eventId = isCme ? event.activityID : event.gstID;
             const time = formatEventTime(event, type);
             const link = document.getElementById('event-nasa-link');
-            const sampleNotice = event.isSample ? '<p class="text-xs text-amber-300 bg-amber-950/30 border border-amber-800/50 rounded-lg p-3">This is illustrative sample telemetry, not an observed NASA event.</p>' : '';
             const makeGrid = items => `<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${items.map(([label, value]) => `<div class="bg-space-900 border border-gray-800 rounded-lg p-3"><p class="text-[10px] uppercase tracking-wider text-gray-500">${escapeHtml(label)}</p><p class="mt-1 text-sm font-mono text-gray-200 break-words">${escapeHtml(value)}</p></div>`).join('')}</div>`;
             const rawRecord = `<pre class="max-h-96 overflow-auto whitespace-pre-wrap break-all rounded-lg border border-gray-800 bg-space-900 p-4 text-[10px] text-gray-300">${escapeHtml(JSON.stringify(event, null, 2))}</pre>`;
             let tabs;
@@ -825,9 +1047,9 @@
                 const analysis = (event.cmeAnalyses || []).find(item => Number.isFinite(Number(item.speed))) || (event.cmeAnalyses || [])[0] || {};
                 const instruments = (event.instruments || []).map(item => item.displayName).filter(Boolean);
                 title.textContent = 'Coronal Mass Ejection Telemetry';
-                document.getElementById('event-modal-kind').textContent = event.isSample ? 'SAMPLE TELEMETRY · CME' : 'NASA DONKI · CME';
+                document.getElementById('event-modal-kind').textContent = 'NASA DONKI · CME';
                 tabs = [
-                    { label: 'Overview', content: `${sampleNotice}${makeGrid([['Eruption Time', time], ['Event ID', eventId || 'N/A']])}<div class="bg-space-900 border border-gray-800 rounded-lg p-4"><h3 class="text-xs font-mono text-gray-300 mb-2">Catalog Observation Notes</h3><p class="text-sm text-gray-400 leading-relaxed">${escapeHtml(event.note || 'No detailed notes available.')}</p></div>` },
+                    { label: 'Overview', content: `${makeGrid([['Eruption Time', time], ['Event ID', eventId || 'N/A']])}<div class="bg-space-900 border border-gray-800 rounded-lg p-4"><h3 class="text-xs font-mono text-gray-300 mb-2">Catalog Observation Notes</h3><p class="text-sm text-gray-400 leading-relaxed">${escapeHtml(event.note || 'No detailed notes available.')}</p></div>` },
                     { label: 'Analysis', content: makeGrid([['Speed', analysis.speed !== undefined ? `${analysis.speed} km/s` : 'Not reported'], ['Solar Coordinates', [analysis.latitude, analysis.longitude].filter(value => value !== undefined && value !== null).join(', ') || 'Not reported'], ['Half Angle', analysis.halfAngle !== undefined ? `${analysis.halfAngle}°` : 'Not reported'], ['Type', analysis.type || 'Not reported']]) },
                     { label: 'Instruments', content: `<div class="bg-space-900 border border-gray-800 rounded-lg p-4"><h3 class="text-xs font-mono text-gray-300 mb-3">Observing Instruments &amp; Spacecraft</h3>${instruments.length ? `<ul class="space-y-2">${instruments.map(name => `<li class="text-sm text-gray-300"><i class="fa-solid fa-satellite-dish text-cyan-400 mr-2"></i>${escapeHtml(name)}</li>`).join('')}</ul>` : '<p class="text-sm text-gray-400">No instrument details reported.</p>'}</div>` },
                     { label: 'Raw JSON', content: rawRecord }
@@ -836,13 +1058,13 @@
                 const peakKp = getPeakKp(event);
                 const level = getStormLevel(peakKp);
                 title.textContent = 'Geomagnetic Storm Telemetry';
-                document.getElementById('event-modal-kind').textContent = event.isSample ? 'SAMPLE TELEMETRY · GST' : 'NASA DONKI · GST';
+                document.getElementById('event-modal-kind').textContent = 'NASA DONKI · GST';
                 const readings = (event.allKpIndex || []).map(reading => {
                     const kp = Number(reading.kpIndex);
                     return `<li class="flex justify-between gap-3 border-b border-gray-800 py-2 text-sm font-mono"><span class="text-gray-400">${escapeHtml(reading.observedTime || 'Observation')}</span><span class="text-amber-300">${Number.isFinite(kp) ? kp.toFixed(1) : 'N/A'} Kp</span></li>`;
                 }).join('');
                 tabs = [
-                    { label: 'Overview', content: `${sampleNotice}${makeGrid([['Storm Start', time], ['Event ID', eventId || 'N/A'], ['NOAA Classification', `${level.code} (${level.label})`], ['Peak Kp', peakKp ? peakKp.toFixed(1) : 'Not reported']])}` },
+                    { label: 'Overview', content: `${makeGrid([['Storm Start', time], ['Event ID', eventId || 'N/A'], ['NOAA Classification', `${level.code} (${level.label})`], ['Peak Kp', peakKp ? peakKp.toFixed(1) : 'Not reported']])}` },
                     { label: 'Kp Readings', content: `<div class="bg-space-900 border border-gray-800 rounded-lg p-4"><h3 class="text-xs font-mono text-gray-300 mb-2">Geomagnetic Measurements</h3>${readings ? `<ul>${readings}</ul>` : '<p class="text-sm text-gray-400">No Kp readings reported.</p>'}</div>` },
                     { label: 'Raw JSON', content: rawRecord }
                 ];
@@ -853,7 +1075,7 @@
             renderEventDetailTabs(eventDetailTabs);
             link.classList.add('hidden');
             link.removeAttribute('href');
-            if (!event.isSample && eventId) {
+            if (eventId) {
                 const match = eventId.match(/(\d{4}-\d{2}-\d{2}).*?-(\d+)$/);
                 if (match) {
                     link.href = `https://kauai.ccmc.gsfc.nasa.gov/DONKI/view/${type}/${match[1]}/${Number(match[2])}`;
@@ -872,48 +1094,6 @@
             modal.classList.add('hidden');
             modal.classList.remove('flex');
             if (eventModalReturnFocus) eventModalReturnFocus.focus();
-        }
-
-        function loadFallbackData() {
-            const sampleDate = daysAgo => {
-                const date = new Date();
-                date.setUTCDate(date.getUTCDate() - daysAgo);
-                date.setUTCHours(12, 0, 0, 0);
-                return date.toISOString();
-            };
-            const fallbackCME = [
-                [1, 842, 'Partial halo CME observed in coronagraph imagery. Solar-wind model indicates a moderate-speed event.', ['SOHO: LASCO/C2', 'SOHO: LASCO/C3']],
-                [2, 685, 'Halo CME with a modeled speed above 650 km/s. Continued monitoring recommended.', ['SOHO: LASCO/C2', 'STEREO A: SECCHI/COR2']],
-                [4, 512, 'Moderate partial halo CME associated with enhanced solar activity.', ['STEREO A: SECCHI/COR2']],
-                [7, 1120, 'Fast limb CME with an estimated leading-edge speed above 1,100 km/s.', ['SOHO: LASCO/C2', 'SOHO: LASCO/C3']],
-                [10, 930, 'Full halo CME with a high-speed model estimate; sample record for interface testing.', ['SOHO: LASCO/C2', 'STEREO A: SECCHI/COR2']],
-                [14, 380, 'Slow coronal mass ejection following a prominence eruption.', ['SOHO: LASCO/C2']]
-            ].map(([days, speed, note, instruments], index) => {
-                const startTime = sampleDate(days);
-                return {
-                    activityID: `SAMPLE-CME-${startTime.slice(0, 10)}-${String(index + 1).padStart(3, '0')}`,
-                    startTime,
-                    note: `[Sample telemetry] ${note}`,
-                    isSample: true,
-                    instruments: instruments.map(displayName => ({ displayName })),
-                    cmeAnalyses: [{ speed, halfAngle: 48, type: 'C', latitude: 'S18', longitude: 'W42' }]
-                };
-            });
-            const fallbackGST = [
-                [3, 6.0], [8, 7.3], [17, 5.3], [24, 6.3]
-            ].map(([days, kp], index) => ({
-                gstID: `SAMPLE-GST-${sampleDate(days).slice(0, 10)}-${String(index + 1).padStart(3, '0')}`,
-                startTime: sampleDate(days),
-                isSample: true,
-                allKpIndex: [{ kpIndex: kp, observedTime: sampleDate(days) }]
-            }));
-            dataSource = 'Sample telemetry';
-            updateConnectionStatus(true);
-            cmeEvents = fallbackCME;
-            gstEvents = fallbackGST;
-            renderCMEData();
-            renderGSTData();
-            appendLog("Sample telemetry rendered. These illustrative records are not NASA observations.", "warning");
         }
 
         async function triggerLambdaSimulation() {
@@ -945,16 +1125,42 @@
         }
 
         function startCountdownTimer() {
-            let seconds = 85200; // ~23h 40m
             const timerEl = document.getElementById('next-exec-timer');
+            updateCountdownForSchedule();
             setInterval(() => {
-                seconds--;
-                if (seconds < 0) seconds = 86400;
-                const h = Math.floor(seconds / 3600);
-                const m = Math.floor((seconds % 3600) / 60);
-                const s = seconds % 60;
-                timerEl.textContent = `${h}h ${m}m ${s}s left`;
+                if (scheduleRule.startsWith('cron(')) return;
+                const current = Number(timerEl.dataset.seconds);
+                if (!Number.isFinite(current)) return;
+                const seconds = current <= 0 ? Number(timerEl.dataset.interval) : current - 1;
+                timerEl.dataset.seconds = String(seconds);
+                timerEl.textContent = formatCountdown(seconds);
             }, 1000);
+        }
+
+        function formatCountdown(seconds) {
+            const days = Math.floor(seconds / 86400);
+            const hours = Math.floor((seconds % 86400) / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const remainingSeconds = seconds % 60;
+            if (days) return `${days}d ${hours}h ${minutes}m left`;
+            if (hours) return `${hours}h ${minutes}m ${remainingSeconds}s left`;
+            return `${minutes}m ${remainingSeconds}s left`;
+        }
+
+        function updateCountdownForSchedule() {
+            const timerEl = document.getElementById('next-exec-timer');
+            const rate = scheduleRule.match(/^rate\(\s*(\d+)\s+(minute|minutes|hour|hours|day|days)\s*\)$/i);
+            if (!rate) {
+                timerEl.dataset.seconds = '';
+                timerEl.dataset.interval = '';
+                timerEl.textContent = 'Cron schedule · UTC';
+                return;
+            }
+            const units = { minute: 60, minutes: 60, hour: 3600, hours: 3600, day: 86400, days: 86400 };
+            const interval = Number(rate[1]) * units[rate[2].toLowerCase()];
+            timerEl.dataset.interval = String(interval);
+            timerEl.dataset.seconds = String(interval);
+            timerEl.textContent = formatCountdown(interval);
         }
     </script>
 </body>
