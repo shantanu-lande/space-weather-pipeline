@@ -62,6 +62,7 @@
                     <h1 class="font-bold tracking-wider text-sm sm:text-base bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">NASA DONKI PIPELINE</h1>
                     <p class="text-xs text-gray-400 font-mono">Space Weather Alert System</p>
                 </div>
+                <span class="hidden sm:inline-flex text-[10px] uppercase tracking-wider text-cyan-300 font-mono bg-cyan-950/60 border border-cyan-800/60 px-2 py-1 rounded-md">Solar Cycle 25</span>
             </div>
             
             <div class="flex items-center space-x-4">
@@ -69,8 +70,8 @@
                     <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
                     <span class="text-gray-300">AWS Lambda: Active</span>
                 </div>
-                <button onclick="fetchSpaceWeatherData()" id="refresh-btn" class="px-3 py-2 rounded-lg bg-space-700 hover:bg-space-600 border border-gray-700 transition text-gray-300 hover:text-white text-xs font-mono" title="Refresh NASA event feeds">
-                    <i class="fa-solid fa-rotate mr-1"></i><span>Refresh</span>
+                <button onclick="fetchSpaceWeatherData()" id="refresh-btn" class="p-2.5 rounded-lg bg-space-700 hover:bg-space-600 border border-gray-700 transition text-gray-300 hover:text-white" title="Sync NASA DONKI API" aria-label="Sync NASA DONKI API">
+                    <i class="fa-solid fa-rotate"></i>
                 </button>
                 <button onclick="openSettingsModal()" id="settings-trigger" class="p-2 rounded-lg bg-space-700 hover:bg-space-600 border border-gray-700 transition text-gray-300 hover:text-white" title="Pipeline Settings" aria-label="Pipeline settings">
                     <i class="fa-solid fa-gear"></i>
@@ -79,13 +80,13 @@
         </div>
         <nav aria-label="Main navigation" class="border-t border-gray-800/70">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex gap-2 overflow-x-auto">
-                <button type="button" data-view="dashboard" onclick="switchView('dashboard')" aria-current="page" class="nav-tab px-4 py-3 text-xs font-mono border-b-2 border-cyan-400 text-cyan-300 whitespace-nowrap transition">
+                <button type="button" data-view="dashboard" onclick="switchView('dashboard')" aria-current="page" class="nav-tab px-4 py-2.5 mt-1 rounded-lg text-xs font-mono bg-cyan-500/15 text-cyan-300 whitespace-nowrap transition">
                     <i class="fa-solid fa-chart-line mr-2"></i>Dashboard
                 </button>
-                <button type="button" data-view="architecture" onclick="switchView('architecture')" class="nav-tab px-4 py-3 text-xs font-mono border-b-2 border-transparent text-gray-400 hover:text-white whitespace-nowrap transition">
+                <button type="button" data-view="architecture" onclick="switchView('architecture')" class="nav-tab px-4 py-2.5 mt-1 rounded-lg text-xs font-mono text-gray-400 hover:bg-space-700 hover:text-white whitespace-nowrap transition">
                     <i class="fa-solid fa-diagram-project mr-2"></i>AWS Architecture
                 </button>
-                <button type="button" data-view="kp-guide" onclick="switchView('kp-guide')" class="nav-tab px-4 py-3 text-xs font-mono border-b-2 border-transparent text-gray-400 hover:text-white whitespace-nowrap transition">
+                <button type="button" data-view="kp-guide" onclick="switchView('kp-guide')" class="nav-tab px-4 py-2.5 mt-1 rounded-lg text-xs font-mono text-gray-400 hover:bg-space-700 hover:text-white whitespace-nowrap transition">
                     <i class="fa-solid fa-book-open mr-2"></i>NOAA Kp Guide
                 </button>
             </div>
@@ -142,7 +143,7 @@
                 </div>
                 <div class="mt-4 flex items-center justify-between text-xs text-gray-400 font-mono border-t border-gray-700/50 pt-3">
                     <span>Data Source:</span>
-                    <span class="text-cyan-400 font-mono">NASA DONKI API</span>
+                    <span id="data-source-label" class="text-cyan-400 font-mono">Connecting...</span>
                 </div>
             </div>
 
@@ -154,7 +155,7 @@
                 <p class="text-xs font-mono text-gray-400 uppercase tracking-wider">Geomagnetic Storms</p>
                 <div class="flex items-baseline space-x-2 mt-2">
                     <span id="gst-count-badge" class="text-2xl font-bold font-mono text-amber-400">--</span>
-                    <span class="text-xs text-gray-400 font-mono">Recorded</span>
+                    <span id="gst-kp-summary" class="text-xs text-gray-400 font-mono">Max Kp --</span>
                 </div>
                 <div class="mt-4 flex items-center justify-between text-xs text-gray-400 font-mono border-t border-gray-700/50 pt-3">
                     <span>Alert Status:</span>
@@ -178,7 +179,7 @@
                         <span class="text-xs font-mono bg-cyan-950 text-cyan-400 px-2.5 py-1 rounded-full border border-cyan-800/50">v1.0.4</span>
                     </div>
                     <p class="text-xs text-gray-400 mt-4 leading-relaxed">
-                        Simulate the execution of your containerized Python pipeline on AWS Lambda. Triggers live API calls to NASA DONKI and outputs structured JSON logs.
+                        Run an interactive Lambda execution simulation and inspect sample CloudWatch-style logs. Use Sync to fetch live NASA DONKI feeds.
                     </p>
 
                     <div class="mt-6 space-y-3">
@@ -259,12 +260,7 @@
                     <span id="cme-badge-count" class="text-xs font-mono bg-cyan-500/10 text-cyan-400 px-2.5 py-1 rounded border border-cyan-500/20">Loading...</span>
                 </div>
 
-                <label class="sr-only" for="cme-search">Search CME events</label>
-                <div class="relative mt-4">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
-                    <input id="cme-search" type="search" placeholder="Search CME events..." class="w-full bg-space-900 border border-gray-800 rounded-lg pl-9 pr-3 py-2 text-xs font-mono text-gray-200 placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition">
-                </div>
-                <div id="cme-cards-container" class="mt-4 space-y-3 overflow-y-auto max-h-[400px] pr-1">
+                <div id="cme-cards-container" class="mt-4 space-y-3 overflow-y-auto max-h-[520px] pr-1">
                     <!-- Dynamically populated -->
                     <div class="text-center py-12 text-gray-500 font-mono text-xs animate-pulse">
                         Fetching CME data from NASA DONKI API...
@@ -287,12 +283,7 @@
                     <span id="gst-badge-count" class="text-xs font-mono bg-amber-500/10 text-amber-400 px-2.5 py-1 rounded border border-amber-500/20">Loading...</span>
                 </div>
 
-                <label class="sr-only" for="gst-search">Search geomagnetic storm events</label>
-                <div class="relative mt-4">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
-                    <input id="gst-search" type="search" placeholder="Search GST events..." class="w-full bg-space-900 border border-gray-800 rounded-lg pl-9 pr-3 py-2 text-xs font-mono text-gray-200 placeholder-gray-500 focus:outline-none focus:border-amber-500 transition">
-                </div>
-                <div id="gst-cards-container" class="mt-4 space-y-3 overflow-y-auto max-h-[400px] pr-1">
+                <div id="gst-cards-container" class="mt-4 space-y-3 overflow-y-auto max-h-[520px] pr-1">
                     <!-- Dynamically populated -->
                     <div class="text-center py-12 text-gray-500 font-mono text-xs animate-pulse">
                         Fetching GST data from NASA DONKI API...
@@ -374,6 +365,24 @@
 
     </main>
 
+    <div id="event-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-[60] hidden items-center justify-center p-4" role="presentation">
+        <section class="bg-space-800 border border-gray-700 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-5 sm:p-7 shadow-2xl space-y-5" role="dialog" aria-modal="true" aria-labelledby="event-modal-title" tabindex="-1">
+            <header class="flex items-start justify-between gap-4 border-b border-gray-700 pb-4">
+                <div>
+                    <p id="event-modal-kind" class="text-[10px] uppercase tracking-widest font-mono text-cyan-400">DONKI TELEMETRY</p>
+                    <h2 id="event-modal-title" class="mt-1 text-lg font-bold">Event details</h2>
+                    <p id="event-modal-id" class="mt-1 text-xs font-mono text-gray-400 break-all"></p>
+                </div>
+                <button type="button" onclick="closeEventModal()" class="p-2 text-gray-400 hover:text-white" aria-label="Close event details"><i class="fa-solid fa-xmark"></i></button>
+            </header>
+            <div id="event-modal-content" class="space-y-4"></div>
+            <div class="flex flex-wrap justify-between gap-3 border-t border-gray-700 pt-4">
+                <a id="event-nasa-link" href="#" target="_blank" rel="noopener noreferrer" class="hidden text-xs font-mono text-cyan-300 hover:text-cyan-200">Open NASA DONKI record <i class="fa-solid fa-arrow-up-right-from-square ml-1"></i></a>
+                <button type="button" onclick="closeEventModal()" class="ml-auto px-4 py-2 rounded-lg bg-space-700 hover:bg-space-600 text-xs font-mono transition">Close</button>
+            </div>
+        </section>
+    </div>
+
     <!-- Settings & API Key Configuration Modal -->
     <div id="settings-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4" role="presentation">
         <div class="bg-space-800 border border-gray-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-6" role="dialog" aria-modal="true" aria-labelledby="settings-title" tabindex="-1">
@@ -422,8 +431,11 @@
     </div>
 
     <!-- Footer -->
-    <footer class="border-t border-gray-800 bg-space-800/50 py-6 mt-12 text-center text-xs text-gray-500 font-mono">
-        <p>NASA Space Apps Challenge • Automated Space Weather Data Pipeline (CME/GST) on AWS</p>
+    <footer class="border-t border-gray-800 bg-space-800/50 py-6 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row gap-2 justify-between items-center text-xs text-gray-500 font-mono">
+            <p>NASA Space Apps Challenge • Automated Space Weather Data Pipeline (CME/GST) on AWS</p>
+            <p class="flex items-center gap-2"><span id="connection-indicator" class="w-2 h-2 rounded-full bg-gray-600"></span><span id="connection-status">Connecting to NASA DONKI...</span><span>•</span><span>Region: ap-south-2</span></p>
+        </div>
     </footer>
 
     <!-- JavaScript Application Logic -->
@@ -434,12 +446,12 @@
         let isFetching = false;
         let fetchQueued = false;
         let lastFocusedElement = null;
+        let eventModalReturnFocus = null;
         let dateWindowDays = 30;
+        let dataSource = 'Connecting...';
 
         // Fetch live or mock NASA data on load
         window.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('cme-search').addEventListener('input', () => renderCMEData());
-            document.getElementById('gst-search').addEventListener('input', () => renderGSTData());
             document.getElementById('event-search').addEventListener('input', () => {
                 renderCMEData();
                 renderGSTData();
@@ -448,9 +460,13 @@
                 if (event.target.id === 'settings-modal') closeSettingsModal();
             });
             document.addEventListener('keydown', event => {
-                if (event.key === 'Escape' && !document.getElementById('settings-modal').classList.contains('hidden')) {
-                    closeSettingsModal();
+                if (event.key === 'Escape') {
+                    if (!document.getElementById('event-modal').classList.contains('hidden')) closeEventModal();
+                    else if (!document.getElementById('settings-modal').classList.contains('hidden')) closeSettingsModal();
                 }
+            });
+            document.getElementById('event-modal').addEventListener('click', event => {
+                if (event.target.id === 'event-modal') closeEventModal();
             });
             fetchSpaceWeatherData();
             startCountdownTimer();
@@ -464,9 +480,9 @@
             document.getElementById('kp-guide-view').classList.toggle('hidden', view !== 'kp-guide');
             document.querySelectorAll('.nav-tab').forEach(button => {
                 const isCurrent = button.dataset.view === view;
-                button.classList.toggle('border-cyan-400', isCurrent);
+                button.classList.toggle('bg-cyan-500/15', isCurrent);
                 button.classList.toggle('text-cyan-300', isCurrent);
-                button.classList.toggle('border-transparent', !isCurrent);
+                button.classList.toggle('bg-transparent', !isCurrent);
                 button.classList.toggle('text-gray-400', !isCurrent);
                 if (isCurrent) button.setAttribute('aria-current', 'page');
                 else button.removeAttribute('aria-current');
@@ -485,6 +501,8 @@
                 button.classList.toggle('border-gray-700', !isCurrent);
                 button.classList.toggle('text-gray-400', !isCurrent);
             });
+            renderCMEData();
+            renderGSTData();
             fetchSpaceWeatherData();
         }
 
@@ -575,7 +593,7 @@
             const refreshButton = document.getElementById('refresh-btn');
             refreshButton.disabled = true;
             refreshButton.setAttribute('aria-busy', 'true');
-            refreshButton.innerHTML = '<i class="fa-solid fa-rotate fa-spin mr-1"></i><span>Loading</span>';
+            refreshButton.innerHTML = '<i class="fa-solid fa-rotate fa-spin"></i>';
             appendLog("Initiating data fetch from NASA DONKI API endpoints...", "info");
             
             try {
@@ -595,9 +613,11 @@
 
                 cmeEvents = cmeData;
                 gstEvents = gstData;
+                dataSource = 'NASA DONKI API';
+                updateConnectionStatus(true);
                 renderCMEData();
                 renderGSTData();
-                appendLog(`Successfully synchronized ${cmeData.length} CME events and ${gstData.length} GST events.`, "success");
+                appendLog(`Successfully synchronized ${cmeData.length} CME events and ${gstData.length} GST events. Source: NASA DONKI API`, "success");
 
             } catch (err) {
                 const message = err instanceof Error ? err.message : String(err);
@@ -607,7 +627,8 @@
                 isFetching = false;
                 refreshButton.disabled = false;
                 refreshButton.removeAttribute('aria-busy');
-                refreshButton.innerHTML = '<i class="fa-solid fa-rotate mr-1"></i><span>Refresh</span>';
+                refreshButton.innerHTML = '<i class="fa-solid fa-rotate"></i>';
+                refreshButton.setAttribute('aria-label', 'Sync NASA DONKI API');
                 if (fetchQueued) {
                     fetchQueued = false;
                     fetchSpaceWeatherData();
@@ -625,43 +646,95 @@
             })[character]);
         }
 
+        function getEventDate(event, type) {
+            const rawDate = event.startTime || (type === 'CME' ? event.activityID : event.gstID);
+            const match = typeof rawDate === 'string' ? rawDate.match(/\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?)?/) : null;
+            if (!match) return null;
+            const date = new Date(match[0]);
+            return Number.isNaN(date.getTime()) ? null : date;
+        }
+
+        function getWindowEvents(data, type) {
+            const earliest = new Date();
+            earliest.setUTCDate(earliest.getUTCDate() - dateWindowDays);
+            return data.filter(event => {
+                const eventDate = getEventDate(event, type);
+                return eventDate && eventDate <= new Date() && eventDate >= earliest;
+            });
+        }
+
+        function formatEventTime(event, type) {
+            const date = getEventDate(event, type);
+            return date ? `${date.toISOString().slice(0, 16).replace('T', ' ')}Z` : 'Unknown time';
+        }
+
+        function getCmeSpeed(event) {
+            const analyses = event.cmeAnalyses || [];
+            const speed = analyses.find(analysis => Number.isFinite(Number(analysis.speed)))?.speed;
+            return speed === undefined ? null : Number(speed);
+        }
+
+        function getPeakKp(event) {
+            return (event.allKpIndex || []).reduce((maximum, reading) => {
+                const value = Number(reading.kpIndex);
+                return Number.isFinite(value) ? Math.max(maximum, value) : maximum;
+            }, 0);
+        }
+
+        function getStormLevel(kp) {
+            if (kp >= 9) return { code: 'G5', label: 'Extreme' };
+            if (kp >= 8) return { code: 'G4', label: 'Severe' };
+            if (kp >= 7) return { code: 'G3', label: 'Strong' };
+            if (kp >= 6) return { code: 'G2', label: 'Moderate' };
+            if (kp >= 5) return { code: 'G1', label: 'Minor' };
+            return { code: 'G0', label: 'Quiet' };
+        }
+
+        function updateConnectionStatus(connected) {
+            const label = connected ? (dataSource === 'NASA DONKI API' ? 'DONKI API Connected' : 'Sample telemetry') : 'NASA DONKI unavailable';
+            document.getElementById('connection-status').textContent = label;
+            document.getElementById('connection-indicator').className = `w-2 h-2 rounded-full ${connected ? (dataSource === 'NASA DONKI API' ? 'bg-green-500' : 'bg-amber-400') : 'bg-red-500'}`;
+            document.getElementById('data-source-label').textContent = dataSource;
+            document.getElementById('data-source-label').className = `font-mono ${dataSource === 'NASA DONKI API' ? 'text-cyan-400' : 'text-amber-400'}`;
+        }
+
         function renderCMEData(data = cmeEvents) {
             const container = document.getElementById('cme-cards-container');
             const badge = document.getElementById('cme-badge-count');
             const statBadge = document.getElementById('cme-count-badge');
-            const queries = [
-                document.getElementById('event-search').value,
-                document.getElementById('cme-search').value
-            ].map(value => value.trim().toLowerCase()).filter(Boolean);
-            const filteredData = data.filter(cme => queries.every(query => JSON.stringify(cme).toLowerCase().includes(query)));
+            const windowEvents = getWindowEvents(data, 'CME');
+            const query = document.getElementById('event-search').value.trim().toLowerCase();
+            const filteredData = windowEvents.filter(cme => !query || JSON.stringify(cme).toLowerCase().includes(query));
 
-            statBadge.textContent = data.length;
-            badge.textContent = queries.length ? `${filteredData.length} Matches` : `${data.length} Events`;
+            statBadge.textContent = windowEvents.length;
+            badge.textContent = query ? `${filteredData.length} Matches` : `${windowEvents.length} Events`;
             if (filteredData.length === 0) {
-                container.innerHTML = `<div class="text-center py-12 text-gray-500 font-mono text-xs">${queries.length ? 'No CME events match your search.' : 'No recent CME events found.'}</div>`;
+                container.innerHTML = `<div class="text-center py-12 text-gray-500 font-mono text-xs">${query ? 'No CME events match your search.' : 'No CME events in this date window.'}</div>`;
                 return;
             }
 
             container.innerHTML = '';
-
-            filteredData.slice(0, 10).forEach(cme => {
-                const startTime = cme.startTime ? cme.startTime.replace('T', ' ') : 'Unknown Time';
-                const note = cme.note ? (cme.note.length > 90 ? `${cme.note.substring(0, 90)}...` : cme.note) : 'No detailed notes available.';
-                const instruments = cme.instruments ? cme.instruments.map(i => i.displayName).join(', ') : 'Standard LASCO';
-
-                const card = document.createElement('div');
-                card.className = 'bg-space-900 border border-gray-800/80 rounded-xl p-4 hover:border-cyan-500/40 transition space-y-2';
+            filteredData.slice(0, 10).forEach((cme, index) => {
+                const eventId = cme.activityID || 'N/A';
+                const startTime = formatEventTime(cme, 'CME');
+                const note = cme.note || 'No detailed notes available.';
+                const instruments = (cme.instruments || []).map(instrument => instrument.displayName).filter(Boolean).join(', ') || 'Not specified';
+                const speed = getCmeSpeed(cme);
+                const speedBadge = speed === null ? '' : `<span class="px-2 py-1 rounded border border-cyan-500/30 bg-cyan-500/10 text-cyan-300">${escapeHtml(speed)} km/s</span>`;
+                const card = document.createElement('article');
+                card.className = 'bg-space-900 border border-gray-800/80 rounded-xl p-4 hover:border-cyan-500/50 transition space-y-2';
                 card.innerHTML = `
-                    <div class="flex items-center justify-between text-xs font-mono">
-                        <span class="text-cyan-400 font-bold">CME ID: ${escapeHtml(cme.activityID || 'N/A')}</span>
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-xs font-mono">
+                        <span class="text-cyan-400 font-bold">CME ID: ${escapeHtml(eventId)}</span>
                         <span class="text-gray-400">${escapeHtml(startTime)}</span>
                     </div>
-                    <p class="text-xs text-gray-300 leading-relaxed">${escapeHtml(note)}</p>
-                    <div class="flex items-center justify-between pt-2 border-t border-gray-800 text-[11px] font-mono text-gray-400">
-                        <span>Instruments: <span class="text-gray-200">${escapeHtml(instruments)}</span></span>
-                        <span class="text-green-400 bg-green-950/40 px-2 py-0.5 rounded border border-green-800/40">Active</span>
+                    <p class="text-sm text-gray-300 leading-relaxed">${escapeHtml(note.length > 180 ? `${note.slice(0, 180)}...` : note)}</p>
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-2 border-t border-gray-800 text-xs font-mono text-gray-400">
+                        <span class="truncate">Instruments: <span class="text-gray-200">${escapeHtml(instruments)}</span></span>
+                        <span class="flex items-center gap-2">${speedBadge}<button type="button" data-inspect="CME" data-index="${index}" class="text-cyan-300 hover:text-cyan-200 whitespace-nowrap">Inspect <i class="fa-solid fa-arrow-up-right-from-square ml-1"></i></button></span>
                     </div>
                 `;
+                card.querySelector('[data-inspect]').addEventListener('click', () => openEventDetails('CME', cme));
                 container.appendChild(card);
             });
         }
@@ -670,58 +743,152 @@
             const container = document.getElementById('gst-cards-container');
             const badge = document.getElementById('gst-badge-count');
             const statBadge = document.getElementById('gst-count-badge');
-            const queries = [
-                document.getElementById('event-search').value,
-                document.getElementById('gst-search').value
-            ].map(value => value.trim().toLowerCase()).filter(Boolean);
-            const filteredData = data.filter(gst => queries.every(query => JSON.stringify(gst).toLowerCase().includes(query)));
+            const windowEvents = getWindowEvents(data, 'GST');
+            const query = document.getElementById('event-search').value.trim().toLowerCase();
+            const filteredData = windowEvents.filter(gst => !query || JSON.stringify(gst).toLowerCase().includes(query));
+            const maxKp = windowEvents.reduce((maximum, event) => Math.max(maximum, getPeakKp(event)), 0);
+            const stormLevel = getStormLevel(maxKp);
 
-            statBadge.textContent = data.length;
-            badge.textContent = queries.length ? `${filteredData.length} Matches` : `${data.length} Events`;
+            statBadge.textContent = windowEvents.length;
+            document.getElementById('gst-kp-summary').textContent = `Max Kp ${maxKp ? maxKp.toFixed(1) : '--'}${maxKp ? ` (${stormLevel.code})` : ''}`;
+            badge.textContent = query ? `${filteredData.length} Matches` : `${windowEvents.length} Events`;
             if (filteredData.length === 0) {
-                container.innerHTML = `<div class="text-center py-12 text-gray-500 font-mono text-xs">${queries.length ? 'No GST events match your search.' : 'No recent geomagnetic storm events found.'}</div>`;
+                container.innerHTML = `<div class="text-center py-12 text-gray-500 font-mono text-xs">${query ? 'No GST events match your search.' : 'No GST events in this date window.'}</div>`;
                 return;
             }
 
             container.innerHTML = '';
-
-            filteredData.slice(0, 10).forEach(gst => {
-                const startTime = gst.startTime ? gst.startTime.replace('T', ' ') : 'Unknown Time';
-                const kpIndex = gst.allKpIndex && gst.allKpIndex.length > 0 ? gst.allKpIndex[gst.allKpIndex.length - 1].kpIndex : 'N/A';
-
-                const card = document.createElement('div');
-                card.className = 'bg-space-900 border border-gray-800/80 rounded-xl p-4 hover:border-amber-500/40 transition space-y-2';
+            filteredData.slice(0, 10).forEach((gst, index) => {
+                const eventId = gst.gstID || 'N/A';
+                const startTime = formatEventTime(gst, 'GST');
+                const kpIndex = getPeakKp(gst);
+                const level = getStormLevel(kpIndex);
+                const card = document.createElement('article');
+                card.className = 'bg-space-900 border border-gray-800/80 rounded-xl p-4 hover:border-amber-500/50 transition space-y-2';
                 card.innerHTML = `
-                    <div class="flex items-center justify-between text-xs font-mono">
-                        <span class="text-amber-400 font-bold">GST ID: ${escapeHtml(gst.gstID || 'N/A')}</span>
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-xs font-mono">
+                        <span class="text-amber-400 font-bold">GST ID: ${escapeHtml(eventId)}</span>
                         <span class="text-gray-400">${escapeHtml(startTime)}</span>
                     </div>
-                    <div class="flex items-center justify-between text-xs font-mono pt-1">
-                        <span class="text-gray-400">Max Kp Index:</span>
-                        <span class="text-amber-400 font-bold bg-amber-950/40 px-2 py-0.5 rounded border border-amber-800/50">${escapeHtml(kpIndex)}</span>
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs font-mono pt-1">
+                        <span class="text-gray-400">NOAA Storm Classification: <span class="text-amber-300">${level.code} (${level.label})</span></span>
+                        <span class="text-amber-300 font-bold">Peak Kp: ${kpIndex ? kpIndex.toFixed(1) : 'N/A'}</span>
                     </div>
-                    <div class="flex items-center justify-between pt-2 border-t border-gray-800 text-[11px] font-mono text-gray-400">
-                        <span>Source: <span class="text-gray-200">NASA space magnetometers</span></span>
-                        <span class="text-amber-400 bg-amber-950/40 px-2 py-0.5 rounded border border-amber-800/40">Monitored</span>
+                    <div class="flex items-center justify-between pt-2 border-t border-gray-800 text-xs font-mono text-gray-400">
+                        <span>Source: <span class="text-gray-200">${gst.isSample ? 'Sample telemetry' : 'NASA DONKI'}</span></span>
+                        <button type="button" data-inspect="GST" data-index="${index}" class="text-amber-300 hover:text-amber-200 whitespace-nowrap">Inspect <i class="fa-solid fa-arrow-up-right-from-square ml-1"></i></button>
                     </div>
                 `;
+                card.querySelector('[data-inspect]').addEventListener('click', () => openEventDetails('GST', gst));
                 container.appendChild(card);
             });
         }
 
+        function openEventDetails(type, event) {
+            const isCme = type === 'CME';
+            const modal = document.getElementById('event-modal');
+            const title = document.getElementById('event-modal-title');
+            const eventId = isCme ? event.activityID : event.gstID;
+            const time = formatEventTime(event, type);
+            const link = document.getElementById('event-nasa-link');
+            const details = [];
+            let content;
+
+            if (isCme) {
+                const analysis = (event.cmeAnalyses || []).find(item => Number.isFinite(Number(item.speed))) || (event.cmeAnalyses || [])[0] || {};
+                const instruments = (event.instruments || []).map(item => item.displayName).filter(Boolean);
+                title.textContent = 'Coronal Mass Ejection Telemetry';
+                document.getElementById('event-modal-kind').textContent = event.isSample ? 'SAMPLE TELEMETRY · CME' : 'NASA DONKI · CME';
+                details.push(['Eruption Time', time], ['Speed', analysis.speed !== undefined ? `${analysis.speed} km/s` : 'Not reported'], ['Solar Coordinates', [analysis.latitude, analysis.longitude].filter(value => value !== undefined && value !== null).join(', ') || 'Not reported'], ['Half Angle', analysis.halfAngle !== undefined ? `${analysis.halfAngle}°` : 'Not reported'], ['Type', analysis.type || 'Not reported'], ['Instruments', instruments.join(', ') || 'Not reported']);
+                content = `
+                    ${event.isSample ? '<p class="text-xs text-amber-300 bg-amber-950/30 border border-amber-800/50 rounded-lg p-3">This is illustrative sample telemetry, not an observed NASA event.</p>' : ''}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${details.map(([label, value]) => `<div class="bg-space-900 border border-gray-800 rounded-lg p-3"><p class="text-[10px] uppercase tracking-wider text-gray-500">${escapeHtml(label)}</p><p class="mt-1 text-sm font-mono text-gray-200 break-words">${escapeHtml(value)}</p></div>`).join('')}</div>
+                    <div class="bg-space-900 border border-gray-800 rounded-lg p-4"><h3 class="text-xs font-mono text-gray-300 mb-2">Catalog Observation Notes</h3><p class="text-sm text-gray-400 leading-relaxed">${escapeHtml(event.note || 'No detailed notes available.')}</p></div>
+                    <details class="bg-space-900 border border-gray-800 rounded-lg p-4"><summary class="cursor-pointer text-xs font-mono text-gray-300">Raw event record</summary><pre class="mt-3 max-h-64 overflow-auto whitespace-pre-wrap break-all text-[10px] text-gray-400">${escapeHtml(JSON.stringify(event, null, 2))}</pre></details>
+                `;
+            } else {
+                const peakKp = getPeakKp(event);
+                const level = getStormLevel(peakKp);
+                title.textContent = 'Geomagnetic Storm Telemetry';
+                document.getElementById('event-modal-kind').textContent = event.isSample ? 'SAMPLE TELEMETRY · GST' : 'NASA DONKI · GST';
+                details.push(['Storm Start', time], ['Peak Kp', peakKp ? peakKp.toFixed(1) : 'Not reported'], ['NOAA Classification', `${level.code} (${level.label})`], ['Measurements', String((event.allKpIndex || []).length)]);
+                const kpReadings = (event.allKpIndex || []).map(reading => {
+                    const kp = Number(reading.kpIndex);
+                    return `${Number.isFinite(kp) ? kp.toFixed(1) : 'N/A'}${reading.observedTime ? ` · ${reading.observedTime}` : ''}`;
+                });
+                content = `
+                    ${event.isSample ? '<p class="text-xs text-amber-300 bg-amber-950/30 border border-amber-800/50 rounded-lg p-3">This is illustrative sample telemetry, not an observed NASA event.</p>' : ''}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${details.map(([label, value]) => `<div class="bg-space-900 border border-gray-800 rounded-lg p-3"><p class="text-[10px] uppercase tracking-wider text-gray-500">${escapeHtml(label)}</p><p class="mt-1 text-sm font-mono text-gray-200 break-words">${escapeHtml(value)}</p></div>`).join('')}</div>
+                    <div class="bg-space-900 border border-gray-800 rounded-lg p-4"><h3 class="text-xs font-mono text-gray-300 mb-2">Kp Readings</h3><p class="text-sm text-gray-400 leading-relaxed">${escapeHtml(kpReadings.join('  |  ') || 'No Kp readings reported.')}</p></div>
+                    <details class="bg-space-900 border border-gray-800 rounded-lg p-4"><summary class="cursor-pointer text-xs font-mono text-gray-300">Raw event record</summary><pre class="mt-3 max-h-64 overflow-auto whitespace-pre-wrap break-all text-[10px] text-gray-400">${escapeHtml(JSON.stringify(event, null, 2))}</pre></details>
+                `;
+            }
+
+            document.getElementById('event-modal-id').textContent = `ID: ${eventId || 'N/A'}`;
+            document.getElementById('event-modal-content').innerHTML = content;
+            link.classList.add('hidden');
+            link.removeAttribute('href');
+            if (!event.isSample && eventId) {
+                const match = eventId.match(/(\d{4}-\d{2}-\d{2}).*?-(\d+)$/);
+                if (match) {
+                    link.href = `https://kauai.ccmc.gsfc.nasa.gov/DONKI/view/${type}/${match[1]}/${Number(match[2])}`;
+                    link.classList.remove('hidden');
+                }
+            }
+
+            eventModalReturnFocus = document.activeElement;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            modal.querySelector('[role="dialog"]').focus();
+        }
+
+        function closeEventModal() {
+            const modal = document.getElementById('event-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            if (eventModalReturnFocus) eventModalReturnFocus.focus();
+        }
+
         function loadFallbackData() {
+            const sampleDate = daysAgo => {
+                const date = new Date();
+                date.setUTCDate(date.getUTCDate() - daysAgo);
+                date.setUTCHours(12, 0, 0, 0);
+                return date.toISOString();
+            };
             const fallbackCME = [
-                { activityID: "2026-10-20T00:00:00-CME-001", startTime: "2026-10-20 04:12:00", note: "Halo CME observed by SOHO/LASCO with estimated velocity > 650 km/s.", instruments: [{displayName: "LASCO/C2"}] },
-                { activityID: "2026-10-18T14:30:00-CME-002", startTime: "2026-10-18 14:30:00", note: "Moderate partial halo CME associated with C-class solar flare.", instruments: [{displayName: "SECCHI/COR2"}] }
-            ];
+                [1, 842, 'Partial halo CME observed in coronagraph imagery. Solar-wind model indicates a moderate-speed event.', ['SOHO: LASCO/C2', 'SOHO: LASCO/C3']],
+                [2, 685, 'Halo CME with a modeled speed above 650 km/s. Continued monitoring recommended.', ['SOHO: LASCO/C2', 'STEREO A: SECCHI/COR2']],
+                [4, 512, 'Moderate partial halo CME associated with enhanced solar activity.', ['STEREO A: SECCHI/COR2']],
+                [7, 1120, 'Fast limb CME with an estimated leading-edge speed above 1,100 km/s.', ['SOHO: LASCO/C2', 'SOHO: LASCO/C3']],
+                [10, 930, 'Full halo CME with a high-speed model estimate; sample record for interface testing.', ['SOHO: LASCO/C2', 'STEREO A: SECCHI/COR2']],
+                [14, 380, 'Slow coronal mass ejection following a prominence eruption.', ['SOHO: LASCO/C2']]
+            ].map(([days, speed, note, instruments], index) => {
+                const startTime = sampleDate(days);
+                return {
+                    activityID: `SAMPLE-CME-${startTime.slice(0, 10)}-${String(index + 1).padStart(3, '0')}`,
+                    startTime,
+                    note: `[Sample telemetry] ${note}`,
+                    isSample: true,
+                    instruments: instruments.map(displayName => ({ displayName })),
+                    cmeAnalyses: [{ speed, halfAngle: 48, type: 'C', latitude: 'S18', longitude: 'W42' }]
+                };
+            });
             const fallbackGST = [
-                { gstID: "2026-10-19-GST-001", startTime: "2026-10-19 18:00:00", allKpIndex: [{kpIndex: 6}] }
-            ];
+                [3, 6.0], [8, 7.3], [17, 5.3], [24, 6.3]
+            ].map(([days, kp], index) => ({
+                gstID: `SAMPLE-GST-${sampleDate(days).slice(0, 10)}-${String(index + 1).padStart(3, '0')}`,
+                startTime: sampleDate(days),
+                isSample: true,
+                allKpIndex: [{ kpIndex: kp, observedTime: sampleDate(days) }]
+            }));
+            dataSource = 'Sample telemetry';
+            updateConnectionStatus(true);
             cmeEvents = fallbackCME;
             gstEvents = fallbackGST;
             renderCMEData();
             renderGSTData();
-            appendLog("Fallback telemetry rendered successfully.", "success");
+            appendLog("Sample telemetry rendered. These illustrative records are not NASA observations.", "warning");
         }
 
         async function triggerLambdaSimulation() {
