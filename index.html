@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NASA DONKI Pipeline - Command Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        space: { 950: '#070a13', 900: '#0b0f19', 800: '#111827', 700: '#1f2937', 600: '#374151' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-space-950 text-gray-100 min-h-screen flex flex-col p-6 selection:bg-cyan-500 selection:text-black">
+
+    <!-- Top Navigation Bar -->
+    <header class="flex flex-col md:flex-row justify-between items-center bg-space-900 border border-space-800 p-4 rounded-2xl mb-6 shadow-2xl gap-4">
+        <div class="flex items-center space-x-3">
+            <div class="bg-cyan-500/10 border border-cyan-500/30 p-2.5 rounded-xl text-cyan-400 font-bold text-xl shadow-inner">🚀</div>
+            <div>
+                <div class="flex items-center space-x-2">
+                    <h1 class="font-bold text-base tracking-wide text-white">NASA DONKI PIPELINE</h1>
+                    <span class="text-[10px] bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 px-2 py-0.5 rounded-full font-mono">SOLAR CYCLE 25</span>
+                </div>
+                <p class="text-xs text-gray-400">Space Weather Alert System</p>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="flex items-center bg-space-950 p-1 rounded-xl border border-space-800 text-xs">
+            <button class="bg-cyan-500/20 text-cyan-300 px-4 py-1.5 rounded-lg font-medium shadow border border-cyan-500/30 flex items-center space-x-1.5">
+                <span>📊</span> <span>Live Dashboard</span>
+            </button>
+            <button class="text-gray-400 hover:text-gray-200 px-4 py-1.5 rounded-lg font-medium transition flex items-center space-x-1.5">
+                <span>☁️</span> <span>Cloud Architecture</span>
+            </button>
+            <button class="text-gray-400 hover:text-gray-200 px-4 py-1.5 rounded-lg font-medium transition flex items-center space-x-1.5">
+                <span>📡</span> <span>NOAA Kp Guide</span>
+            </button>
+        </div>
+
+        <!-- Right System Indicators -->
+        <div class="flex items-center space-x-3">
+            <span class="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 shadow-inner">
+                <span class="w-2 h-2 mr-2 bg-emerald-400 rounded-full animate-pulse"></span> AWS Lambda: Active
+            </span>
+            <button onclick="location.reload()" class="bg-space-800 hover:bg-space-700 p-2 rounded-xl border border-space-700 text-gray-300 transition" title="Refresh Telemetry">🔄</button>
+            <button class="bg-space-800 hover:bg-space-700 p-2 rounded-xl border border-space-700 text-gray-300 transition" title="Settings">⚙️</button>
+        </div>
+    </header>
+
+    <!-- Main Grid -->
+    <main class="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-7xl mx-auto w-full">
+        
+        <!-- Top Metrics Row -->
+        <div class="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-space-900 border border-space-800 p-5 rounded-2xl shadow-lg relative overflow-hidden">
+                <div class="absolute top-4 right-4 text-cyan-500/20 text-2xl font-mono">⚙️</div>
+                <p class="text-[11px] text-gray-400 uppercase tracking-wider font-semibold">Pipeline Engine</p>
+                <div class="flex items-baseline space-x-2 mt-1">
+                    <span class="text-xl font-bold text-cyan-400">AWS Lambda</span>
+                    <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-medium">Online</span>
+                </div>
+                <p class="text-xs text-gray-500 mt-2 font-mono">Container ECR: space-weather-repo</p>
+            </div>
+
+            <div class="bg-space-900 border border-space-800 p-5 rounded-2xl shadow-lg relative overflow-hidden">
+                <div class="absolute top-4 right-4 text-amber-500/20 text-2xl font-mono">⏰</div>
+                <p class="text-[11px] text-gray-400 uppercase tracking-wider font-semibold">EventBridge Schedule</p>
+                <div class="flex items-baseline space-x-2 mt-1">
+                    <span class="text-xl font-bold text-amber-400">rate(1 day)</span>
+                    <span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded font-medium">Scheduled</span>
+                </div>
+                <p class="text-xs text-gray-500 mt-2 font-mono">Next execution: 22h 56m remaining</p>
+            </div>
+
+            <div class="bg-space-900 border border-space-800 p-5 rounded-2xl shadow-lg relative overflow-hidden">
+                <div class="absolute top-4 right-4 text-blue-500/20 text-2xl font-mono">☀️</div>
+                <p class="text-[11px] text-gray-400 uppercase tracking-wider font-semibold">CME Events (7D)</p>
+                <div class="flex items-baseline space-x-2 mt-1">
+                    <span class="text-2xl font-bold text-white">6</span>
+                    <span class="text-xs text-cyan-400">Recorded</span>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">Data Source: NASA DONKI Mission Cache</p>
+            </div>
+
+            <div class="bg-space-900 border border-space-800 p-5 rounded-2xl shadow-lg relative overflow-hidden">
+                <div class="absolute top-4 right-4 text-purple-500/20 text-2xl font-mono">⚡</div>
+                <p class="text-[11px] text-gray-400 uppercase tracking-wider font-semibold">Geomagnetic Storms</p>
+                <div class="flex items-baseline space-x-2 mt-1">
+                    <span class="text-2xl font-bold text-white">4</span>
+                    <span class="text-xs text-amber-400 font-semibold">Max Kp 7.3 (G3)</span>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">Alert Status: <span class="text-emerald-400 font-medium">Operational</span></p>
+            </div>
+        </div>
+
+        <!-- Interactive Runner & Logs -->
+        <div class="bg-space-900 border border-space-800 p-5 rounded-2xl shadow-lg flex flex-col justify-between">
+            <div>
+                <div class="flex justify-between items-center mb-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-cyan-400">⚡</span>
+                        <h2 class="font-bold text-sm tracking-wide text-gray-200">Lambda Test Runner</h2>
+                    </div>
+                    <span class="text-[10px] bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded font-mono">v1.0.4</span>
+                </div>
+                <p class="text-xs text-gray-400 mb-4 leading-relaxed">Simulate the execution of your containerized Python pipeline on AWS Lambda. Triggers live API calls to NASA DONKI and outputs structured JSON logs.</p>
+                
+                <div class="space-y-2 text-xs text-gray-300 bg-space-950 p-3.5 rounded-xl border border-space-800 font-mono mb-4">
+                    <div class="flex justify-between"><span class="text-gray-500">Target Handler:</span> <span class="text-cyan-400">app.lambda_handler</span></div>
+                    <div class="flex justify-between"><span class="text-gray-500">Runtime Environment:</span> <span class="text-gray-300">Python 3.9 (Docker)</span></div>
+                    <div class="flex justify-between"><span class="text-gray-500">Region Deployment:</span> <span class="text-amber-400">us-east-1</span></div>
+                    <div class="flex justify-between"><span class="text-gray-500">API Authentication:</span> <span class="text-emerald-400">Configured (Masked)</span></div>
+                    <div class="flex justify-between pt-1 border-t border-space-800"><span class="text-gray-500">Last Run:</span> <span class="text-gray-300" id="lastRunTime">10:29:07 pm</span></div>
+                </div>
+            </div>
+
+            <button onclick="triggerLambdaSimulation()" class="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-medium py-3 px-4 rounded-xl shadow-lg shadow-cyan-900/30 transition text-sm flex items-center justify-center space-x-2">
+                <span>⚡</span> <span>INVOKE LAMBDA FUNCTION</span>
+            </button>
+            <p class="text-[10px] text-center text-gray-500 mt-2 font-mono">Triggers simulated CloudWatch telemetry & NASA ingestion</p>
+        </div>
+
+        <div class="lg:col-span-2 bg-space-900 border border-space-800 p-5 rounded-2xl shadow-lg flex flex-col">
+            <div class="flex justify-between items-center mb-3">
+                <div class="flex items-center space-x-2">
+                    <span class="text-cyan-400 font-mono text-sm">>_</span>
+                    <h2 class="font-bold text-sm tracking-wide text-gray-200">Execution Logs & NASA API Stream</h2>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="w-2 h-2 bg-emerald-400 rounded-full animate-ping"></span>
+                    <button onclick="clearLogs()" class="text-xs text-gray-400 hover:text-white bg-space-800 px-3 py-1 rounded-lg border border-space-700 transition">Clear</button>
+                </div>
+            </div>
+            <div id="logConsole" class="bg-space-950 border border-space-800 rounded-xl p-4 font-mono text-xs text-cyan-400 h-64 overflow-y-auto space-y-2 flex flex-col shadow-inner">
+                <div class="text-gray-500">{"sns_notifications_sent": 4, "execution_target": "space-weather-repo:app.lambda_handler"}</div>
+                <div class="text-emerald-400">[6:06:39 pm] REPORT RequestId: req-vt105rhn-1f84 Duration: 3065.80 ms Billed Duration: 200 ms</div>
+                <div class="text-gray-400">Memory Size: 3008 MB Max Memory Used: 98 MB</div>
+                <div class="text-cyan-400">[6:06:39 pm] END RequestId: req-vt105rhn-1f84</div>
+                <div class="text-gray-400">[10:28:41 pm] Initiating data fetch from NASA DONKI API endpoints...</div>
+                <div class="text-emerald-400">[10:28:42 pm] Successfully synchronized 6 CME events and 4 GST events. Source: NASA DONKI Mission Cache</div>
+                <div class="text-gray-400">[10:28:47 pm] Initiating data fetch from NASA DONKI API endpoints...</div>
+                <div class="text-emerald-400">[10:28:47 pm] Successfully synchronized 6 CME events and 4 GST events. Source: NASA DONKI Mission Cache</div>
+                <div class="text-cyan-400">[10:29:04 pm] START RequestId: req-47Las0h8-0sgs Version: $LATEST</div>
+                <div class="text-emerald-400">[10:29:04 pm] [INFO] Invoking AWS Lambda container handler (space-weather-repo:app.lambda_handler)...</div>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="lg:col-span-3 bg-space-900 border border-space-800 p-3 rounded-2xl shadow flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="relative w-full sm:w-96">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">🔍</span>
+                <input type="text" placeholder="Search event ID, region, notes..." class="w-full bg-space-950 border border-space-800 rounded-xl pl-9 pr-4 py-2 text-xs text-gray-200 focus:outline-none focus:border-cyan-500 transition">
+            </div>
+            <div class="flex items-center space-x-2 text-xs text-gray-400 w-full sm:w-auto justify-end">
+                <span>Window:</span>
+                <div class="bg-space-950 p-1 rounded-xl border border-space-800 flex space-x-1">
+                    <button class="bg-cyan-500/20 text-cyan-300 px-3 py-1 rounded-lg font-medium border border-cyan-500/30">7d</button>
+                    <button class="hover:text-gray-200 px-3 py-1 rounded-lg font-medium transition">30d</button>
+                    <button class="hover:text-gray-200 px-3 py-1 rounded-lg font-medium transition">90d</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Coronal Mass Ejection Feed -->
+        <div class="bg-space-900 border border-space-800 p-5 rounded-2xl shadow-lg">
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <h2 class="font-bold text-sm text-gray-200">Coronal Mass Ejection (CME) Feed</h2>
+                    <p class="text-xs text-gray-400">Recent solar plasma eruptions</p>
+                </div>
+                <span class="text-xs bg-cyan-500/10 text-cyan-400 px-2.5 py-1 rounded-xl border border-cyan-500/20 font-medium">6 Events</span>
+            </div>
+            <div class="space-y-3">
+                <div class="bg-space-950 p-4 rounded-xl border border-space-800 text-xs shadow-inner">
+                    <div class="flex justify-between font-mono text-gray-400 mb-2">
+                        <span class="text-cyan-400 font-bold">CME ID: 2026-10-21T18:36:00-CME-001</span>
+                        <span>2026-10-21 18:36Z</span>
+                    </div>
+                    <p class="text-gray-300 leading-relaxed mb-3">Partial halo Coronal Mass Ejection detected by SOHO/LASCO C2 and C3. Associated with M4.2 solar...</p>
+                    <div class="flex justify-between items-center pt-2 border-t border-space-800 text-[11px]">
+                        <span class="text-gray-400 font-mono">Instruments: <span class="text-gray-200">SOHO: LASCO/C2, SOH...</span></span>
+                        <div class="flex space-x-2">
+                            <span class="bg-cyan-500/10 text-cyan-300 px-2 py-0.5 rounded font-mono border border-cyan-500/20">842 km/s</span>
+                            <button class="text-cyan-400 hover:underline font-medium">Inspect ↗</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Geomagnetic Storm Feed -->
+        <div class="bg-space-900 border border-space-800 p-5 rounded-2xl shadow-lg lg:col-span-2">
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <h2 class="font-bold text-sm text-gray-200">Geomagnetic Storm (GST) Feed</h2>
+                    <p class="text-xs text-gray-400">Planetary magnetic disturbances</p>
+                </div>
+                <span class="text-xs bg-amber-500/10 text-amber-400 px-2.5 py-1 rounded-xl border border-amber-500/20 font-medium">4 Events</span>
+            </div>
+            <div class="space-y-3">
+                <div class="bg-space-950 p-4 rounded-xl border border-space-800 text-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-inner">
+                    <div class="space-y-1">
+                        <div class="font-mono text-amber-400 font-bold">GST ID: 2026-10-19-GST-001 <span class="text-gray-500 font-normal ml-2">2026-10-19 18:00Z</span></div>
+                        <p class="text-gray-300">NOAA Storm Classification: <span class="text-amber-300 font-semibold">G2 (Moderate)</span></p>
+                        <p class="text-gray-400 font-mono text-[11px]">Source: Canberra Observatory</p>
+                    </div>
+                    <div class="text-right bg-space-900 p-3 rounded-xl border border-space-800 min-w-[120px] flex sm:flex-col justify-between items-center sm:items-end w-full sm:w-auto">
+                        <span class="text-[10px] text-gray-400 uppercase tracking-wider">Peak Kp</span>
+                        <span class="text-xl font-bold text-amber-400">6.0</span>
+                        <button class="text-cyan-400 hover:underline text-xs font-medium sm:mt-1">Inspect ↗</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center text-xs text-gray-500 mt-12 mb-6 font-mono">
+        NASA DONKI Pipeline • Powered by AWS Lambda, Amazon ECR & EventBridge • Enterprise Command Center v2.4
+    </footer>
+
+    <script>
+        function appendLog(message, type = "info") {
+            const consoleDiv = document.getElementById('logConsole');
+            const timeStr = new Date().toLocaleTimeString();
+            const div = document.createElement('div');
+            div.className = type === "success" ? "text-emerald-400" : type === "error" ? "text-rose-400" : "text-cyan-400";
+            div.textContent = `[${timeStr}] ${message}`;
+            consoleDiv.appendChild(div);
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+
+        async function triggerLambdaSimulation() {
+            appendLog("Invoking AWS Lambda container handler (space-weather-repo:app.lambda_handler)...", "info");
+            setTimeout(() => appendLog("Initializing Space Weather Pipeline container...", "info"), 800);
+            setTimeout(() => appendLog("Initiating data fetch from NASA DONKI API endpoints...", "info"), 1600);
+            setTimeout(() => {
+                appendLog('{"statusCode": 200, "body": "Successfully synchronized CME & GST events."}', "success");
+                appendLog("START RequestId: req-92fa1b-884c Version: $LATEST", "info");
+                appendLog("REPORT RequestId: req-92fa1b-884c Duration: 124.50 ms Memory Used: 104 MB Billed Duration: 200 ms", "success");
+                document.getElementById('lastRunTime').textContent = new Date().toLocaleTimeString();
+            }, 2600);
+        }
+
+        function clearLogs() {
+            document.getElementById('logConsole').innerHTML = '';
+        }
+    </script>
+</body>
+</html>
